@@ -4,3 +4,7 @@
 *.jar
 *.war
 *.ear
+
+# Netbeans junks
+manifest.mf
+nbproject/
