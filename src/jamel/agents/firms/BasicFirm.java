@@ -280,7 +280,7 @@ public class BasicFirm extends JamelObject implements Firm {
 			else if (key.equals(Labels.PRODUCTION)) {
 				this.blackboard.put(key, ProductionType.valueOf(value),null);				
 			}
-			else if (key.equals("type")) {// FIXME c'est moche, réfléchir à ça.
+			else if (key.equals("type")) {// FIXME c'est moche, r√©fl√™chir √† √ßa.
 			}
 			else  {
 				throw new RuntimeException("Unknown parameter: "+key+"="+value);

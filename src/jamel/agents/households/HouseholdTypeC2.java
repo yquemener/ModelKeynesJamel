@@ -34,7 +34,7 @@ import java.util.Comparator;
 import java.util.TreeSet;
 
 /**
- * Un ménage qui résiste à changer de secteur pour trouver un emploi. 
+ * Un m√©nage qui r√©siste √† changer de secteur pour trouver un emploi. 
  */
 public class HouseholdTypeC2 extends HouseholdTypeB {
 	

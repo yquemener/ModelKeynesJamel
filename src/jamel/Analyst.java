@@ -205,9 +205,9 @@ public class Analyst implements AbstractSimulator {
 	}
 
 	/**
-	 * Etablit le scnario de base des simulations.
-	 * Les donnes variables sont extraites et enregistres dans les champs correspondants.
-	 * @param aParameters  une liste de cha”nes contenant des instructions.
+	 * Etablit le scÂnario de base des simulations.
+	 * Les donnÂes variables sont extraites et enregistrÂes dans les champs correspondants.
+	 * @param aParameters  une liste de chaÂ”nes contenant des instructions.
 	 */
 	private void initAnalysis(LinkedList<String> aParameters) {
 		for (String line: aParameters) {

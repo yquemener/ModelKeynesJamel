@@ -389,9 +389,9 @@ public class Circuit extends JamelObject {
 	}
 
 	/**
-	 * Imprime dans le fichier de sortie les variables demandées.
-	 * Utilisé pour les analyses de sensibilité.
-	 * @param keyArray  le tableau qui contient le nom des variables à imprimer.
+	 * Imprime dans le fichier de sortie les variables demand√©es.
+	 * Utilis√© pour les analyses de sensibilit√©.
+	 * @param keyArray  le tableau qui contient le nom des variables √† imprimer.
 	 */
 	private void write(String[] keyArray) {
 		try {
@@ -444,7 +444,7 @@ public class Circuit extends JamelObject {
 		this.firms.production() ;
 		this.firms.buyRawMaterials();
 		this.households.consume() ;
-		this.bank.debtRecovery() ;// essayer de placer ça en tout début de période.
+		this.bank.debtRecovery() ;// essayer de placer √ßa en tout d√©but de p√©riode.
 		this.close() ;
 	}
 

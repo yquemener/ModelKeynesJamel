@@ -76,7 +76,7 @@ public class PeriodDataset extends JamelObject{
 	public long BANK_DIVIDEND;
 
 	/** BANKRUPTCIES */
-	public long BANKRUPTCIES; // TODO utiliser cette donnée issue de la banque pour contrôler les données issues des entreprises.
+	public long BANKRUPTCIES; // TODO utiliser cette donn√©e issue de la banque pour contr√¥ler les donn√©es issues des entreprises.
 
 	/** bankruptciesIntermediate */
 	public int bankruptS1;

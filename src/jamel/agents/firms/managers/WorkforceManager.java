@@ -304,7 +304,7 @@ public class WorkforceManager extends JamelObject {
 	 */
 	public void updateWorkforce() {
 
-		// On met a jour la liste des employés en supprimant les contrats échus.
+		// On met a jour la liste des employ√©s en supprimant les contrats √©chus.
 
 		Iterator<EmploymentContract> iter = this.payroll.iterator() ;
 		while (iter.hasNext()) {								
@@ -319,7 +319,7 @@ public class WorkforceManager extends JamelObject {
 		final int targetedWorkforce = (int) ((machinery*productionLevel)/100f);
 		this.blackBoard.put(Labels.WORKFORCE_TARGET, targetedWorkforce);		
 
-		// Si la main d'oeuvre employée dépasse les besoins, on licencie. 
+		// Si la main d'oeuvre employ√©e d√©passe les besoins, on licencie. 
 
 		final int targetedHiring = targetedWorkforce - this.payroll.size();
 		if ( targetedHiring<0 ) {

@@ -29,7 +29,7 @@ package jamel.agents.households;
 import jamel.util.markets.EmploymentContract;
 
 /**
- * Un ménage dont la mobilité sectorielle augmente avec la durée du chômage.
+ * Un m√©nage dont la mobilit√© sectorielle augmente avec la dur√©e du ch√¥mage.
  */
 public class HouseholdTypeC1 extends HouseholdTypeC {
 	

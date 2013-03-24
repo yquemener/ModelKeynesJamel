@@ -123,7 +123,7 @@ public class Simulator implements AbstractSimulator {
 	/**
 	 * Creates a new simulator.
 	 * @param name  the name of the simulation.
-	 * @param parameters  the parameters of the simulation.Ž
+	 * @param parameters  the parameters of the simulation.ÂŽ
 	 */
 	public Simulator(String name, LinkedList<String> parameters) {
 		JamelObject.setTimer(new Timer());
