@@ -1,0 +1,7 @@
+
+Bank.2000-01.set(rate=0.05,term=12,targetedCapitalRatio=0.1)
+
+Firms.2000-01.new(firms=1,type=jamel.agents.firms.BasicFirm)
+
+
+

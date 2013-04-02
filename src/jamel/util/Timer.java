@@ -46,7 +46,7 @@ public class Timer {
 	
 		/** The number of period since the origin. */
 		final private int value;
-	
+	                        
 		/**
 		 * Creates a new period.
 		 * @param periodValue - the value of the period.
@@ -88,6 +88,7 @@ public class Timer {
 		/* (non-Javadoc)
 		 * @see java.lang.Object#equals(java.lang.Object)
 		 */
+                @Override
 		public boolean equals(Object obj) {
 			if (obj==this) {
 				return true;
@@ -199,11 +200,12 @@ public class Timer {
 		/**
 		 * Returns a string that contains the date of the period at the format <code>yyyy-mm</code>.
 		 */
+                @Override
 		public String toString() {
-			final int month = this.month.getMonth();
+			final int lMonth = this.month.getMonth();
 			final int yearValue = this.month.getYearValue();
-			if (month<10) return yearValue+"-0"+month;
-			return yearValue+"-"+month;
+			if (lMonth<10) return yearValue+"-0"+lMonth;
+			return yearValue+"-"+lMonth;
 		}
 
 		/**
@@ -267,6 +269,5 @@ public class Timer {
 	 */
 	public void nextPeriod() {
 		currentPeriod = currentPeriod.next();
-	}
-	
+	}	
 }

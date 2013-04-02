@@ -264,7 +264,7 @@ public class Bank extends JamelObject implements AccountHolder {
 					return;
 				}
 				if (this.lQuality.isDoubtFul()) {
-					if (Bank.this.pAccommodating) {
+					if (Bank.this.Accommodating) {
 						// If the bank is accommodating then the loan is not downgraded.
 						return; 
 					}
@@ -467,7 +467,7 @@ public class Bank extends JamelObject implements AccountHolder {
 		public void lend(long principal) {
 			if (!open) 
 				throw new RuntimeException("This account is closed.");
-			new Loan(principal,Quality.GOOD, Bank.this.pMonthlyInterestRate, Bank.this.pNormalTerm);
+			new Loan(principal,Quality.GOOD, Bank.this.MonthlyInterestRate, Bank.this.NormalTerm);
 		}
 
 	}
@@ -497,28 +497,23 @@ public class Bank extends JamelObject implements AccountHolder {
 	private boolean bankrupt = false;
 
 	/** A flag that indicates whether the bank is accommodating or not. */
-	private boolean pAccommodating = true;
+	public boolean Accommodating = true;
 
 	/** The normal interest rate (monthly). */
-	private double pMonthlyInterestRate = 0;
+	public double MonthlyInterestRate = 0;
 
 	/** The normal term of credits. */
-	private int pNormalTerm = 0;
+	public int NormalTerm = 0;
 
 	/** The capital ratio targeted by the bank. */
-	private float pTargetedCapitalRatio = 0f;
-
-	/** The list of parameters and events of the simulation. */
-	private final LinkedList<String> scenario;
+	public float TargetedCapitalRatio = 0f;
 
 	/**
 	 * Creates a new bank.
-	 * @param aScenario  the scenario of the simulation.
 	 */
-	public Bank(LinkedList<String> aScenario) { 
+	public Bank() { 
 		this.bankAccount = new BasicAccount(this); 
 		this.accountsList = new LinkedList<CurrentAccount>() ;
-		scenario = aScenario;
 	}
 
 	/**
@@ -537,7 +532,7 @@ public class Bank extends JamelObject implements AccountHolder {
 	 * @return - the penalty rate.
 	 */
 	private double getPenaltyRate() {
-		return pMonthlyInterestRate*2;
+		return MonthlyInterestRate*2;
 	}
 
 	/**
@@ -571,7 +566,7 @@ public class Bank extends JamelObject implements AccountHolder {
 	 * @param param - a string that contains a parsable boolean.
 	 */
 	private void setAccommodating(String param) {
-		this.pAccommodating = Boolean.parseBoolean(param);
+		this.Accommodating = Boolean.parseBoolean(param);
 	}
 
 	/**
@@ -579,15 +574,15 @@ public class Bank extends JamelObject implements AccountHolder {
 	 * @param param - a string that contains a parsable float. 
 	 */
 	private void setAnnualRate(String param) {
-		this.pMonthlyInterestRate = yearly2Monthly(Float.parseFloat(param));
+		this.MonthlyInterestRate = yearly2Monthly(Float.parseFloat(param));
 	}
 
 	/**
 	 * Sets the normal term of credits (as a number of months).
 	 * @param param - a string that contains a parsable integer.
 	 */
-	private void setNormalTerm(String param) {
-		this.pNormalTerm = Integer.parseInt(param);		
+	public void setNormalTerm(String param) {
+		this.NormalTerm = Integer.parseInt(param);		
 	}
 
 	/**
@@ -611,7 +606,7 @@ public class Bank extends JamelObject implements AccountHolder {
 	 * @param param - a string that contains a parsable float. 
 	 */
 	private void setTargetedCapitalRatio(String param) {
-		this.pTargetedCapitalRatio = Float.parseFloat(param);		
+		this.TargetedCapitalRatio = Float.parseFloat(param);		
 	}
 
 	/**
@@ -658,7 +653,7 @@ public class Bank extends JamelObject implements AccountHolder {
 		for(CurrentAccount account : this.accountsList){
 			account.recover();
 			if (account.getDebtorStatus().isBad()) {
-				if (!this.pAccommodating) {
+				if (!this.Accommodating) {
 					this.bankData.addBankruptcy();
 					// The bank tries to cancel the debt of the bad debtor.
 					final long nPLoans = account.getDebt();
@@ -717,15 +712,15 @@ public class Bank extends JamelObject implements AccountHolder {
 			throw new RuntimeException("The bank is bankrupt.");
 		bankData = new BankData();
 		final String date = getCurrentPeriod().toString();
-		final LinkedList<String> eList = Circuit.getParametersList(this.scenario, date, "\\.");
-		for (String string: eList){
+		//final LinkedList<String> eList = Circuit.getParametersList(this.scenario, date, "\\.");
+		/*for (String string: eList){
 			String[] word = string.split("\\)",2);
 			String[] event = word[0].split("\\(",2);
 			if (event[0].equals("set")) 
 				setParameters(event[1].split(","));
 			else 
 				throw new RuntimeException("Unknown event \""+event[0]+"\".");
-		}
+		}*/
 	}
 
 	/**
@@ -736,7 +731,7 @@ public class Bank extends JamelObject implements AccountHolder {
 			throw new RuntimeException("The bank is bankrupt.");
 		final long ownCapital = bankAccount.getAmount();
 		final long totalAssets = this.getTotalAssets();
-		final long requiredCapital = (long)(totalAssets*this.pTargetedCapitalRatio);
+		final long requiredCapital = (long)(totalAssets*this.TargetedCapitalRatio);
 		final long excedentCapital = Math.max(0, ownCapital-requiredCapital);
 		long dividend = excedentCapital/12;	
 		if (dividend<0) throw new RuntimeException("Dividend must be positive.") ;

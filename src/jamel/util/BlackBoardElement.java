@@ -84,8 +84,8 @@ public class BlackBoardElement extends JamelObject {
 	 * @return the value of the element.
 	 */
 	public Object getValue() {
-		if (!isValid())
-			throw new RuntimeException("Out of date content");
+		/*if (!isValid())
+			throw new RuntimeException("Out of date content");*/
 		return value;
 	}
 	

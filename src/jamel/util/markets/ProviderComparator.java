@@ -44,7 +44,7 @@ public class ProviderComparator implements Comparator<Provider> {
 		if (offer2 == null) return -1;
 		if ((offer1.getVolume() == 0) | (offer2.getVolume() == 0)) new RuntimeException();
 		if ((offer1.getPrice() == 0) | (offer2.getPrice() == 0)) new RuntimeException();
-		return (new Double(offer1.getPrice()).compareTo(offer2.getPrice()));
+                return Double.compare(offer1.getPrice(), offer2.getPrice());
 	}
 
 }

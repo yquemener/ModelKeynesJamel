@@ -1,0 +1,4 @@
+* Remove progress dialog in analyst
+* Add text output for Analyst
+* Use methods reflections to get truly parametrizable scenarios
+* Put a probe mechanism to generalize ploting

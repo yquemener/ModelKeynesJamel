@@ -50,6 +50,7 @@ import jamel.util.data.CrossSectionSeries;
 import jamel.util.data.PeriodDataset;
 import jamel.util.data.TimeseriesCollection;
 import jamel.util.data.YearDataset;
+import jamel.util.Scenario;
 
 /**
  * Represents the macroeconomic circuit.
@@ -58,6 +59,9 @@ public class Circuit extends JamelObject {
 
 	/** The circuit. */
 	private static Circuit circuit;
+        
+        /** The scenario. */
+        private Scenario scenario;
 
 	/** The line separator. */
 	final private static String rc = System.getProperty("line.separator");
@@ -212,7 +216,7 @@ public class Circuit extends JamelObject {
 	}
 
 	/** The bank. */
-	private final Bank bank ;
+	public final Bank bank ;
 
 	/** The cross-section series. */
 	private final CrossSectionSeries crossSectionSeries;
@@ -221,10 +225,10 @@ public class Circuit extends JamelObject {
 	private final LinkedList<PeriodDataset> data = new LinkedList<PeriodDataset>();
 
 	/** The firms sector. */
-	private final FirmsSector firms ;
+	public final FirmsSector firms ;
 
 	/** The households sector. */
-	private final HouseholdsSector households ;
+	public final HouseholdsSector households ;
 
 	/** The balance sheet matrix. */
 	private final BalanceSheetMatrix matrix = new BalanceSheetMatrix();
@@ -239,7 +243,7 @@ public class Circuit extends JamelObject {
 	private int randomSeed;
 
 	/** The list of parameters and events for the circuit. */
-	final private LinkedList<String> scenario;
+	final private LinkedList<String> scenarioStrings;
 
 	/** The simulator. */
 	private final AbstractSimulator simulator;
@@ -255,15 +259,18 @@ public class Circuit extends JamelObject {
 	 * @param aSimulator  the simulator.
 	 * @param aScenario  a list of strings representing parameters and events.
 	 */
-	public Circuit(AbstractSimulator aSimulator, LinkedList<String> aScenario) {
+	
+        
+        public Circuit(AbstractSimulator aSimulator, LinkedList<String> aScenario) {
 		circuit = this;
 		//System.out.println(aScenario.toString());
 		simulator = aSimulator;
-		this.scenario = getParametersList(aScenario,"Circuit","\\.");
+		this.scenarioStrings = getParametersList(aScenario,"Circuit","\\.");
+                this.scenario = new Scenario(aScenario, this);
 		getRandom().setSeed(0); // Why that ?
 		this.crossSectionSeries = new CrossSectionSeries();
 		this.timesSeriesCollection = new TimeseriesCollection();
-		this.bank = new Bank(getParametersList(aScenario,"Bank","\\."));
+		this.bank = new Bank();
 		this.households = new HouseholdsSector(getParametersList(aScenario,"Households","\\."));
 		this.firms = new FirmsSector(getParametersList(aScenario,"Firms","\\."));
 	}
@@ -308,7 +315,7 @@ public class Circuit extends JamelObject {
 	 * Opens the circuit.
 	 */
 	private void open() {				
-		final LinkedList<String> eList = getParametersList(this.scenario, getCurrentPeriod().toString(), "\\.");
+		final LinkedList<String> eList = getParametersList(this.scenarioStrings, getCurrentPeriod().toString(), "\\.");
 		if (!eList.isEmpty()) {
 			for (String string: eList){
 				if (string.equals("pause()")) 
@@ -333,12 +340,12 @@ public class Circuit extends JamelObject {
 							this.writeString(event[1]);
 							this.write(event[1].split(","));
 							final String s=getCurrentPeriod().next().toString()+".printEachPeriod2("+event[1]+")";
-							this.scenario.addLast(s);
+							this.scenarioStrings.addLast(s);
 						}
 						else if (event[0].equals("printEachPeriod2")) {
 							this.write(event[1].split(","));
 							final String s=getCurrentPeriod().next().toString()+".printEachPeriod2("+event[1]+")";
-							this.scenario.addLast(s);
+							this.scenarioStrings.addLast(s);
 						}
 						else if (event[0].equals("marker"))
 							simulator.marker(event[1],getCurrentPeriod().getMonth());
@@ -435,8 +442,13 @@ public class Circuit extends JamelObject {
 	 * A period is defined as the time between two consecutive payments of income. 
 	 */
 	public void doPeriod() {
+                long startTime = System.currentTimeMillis();
 		this.nextPeriod();
-		this.open() ;
+		System.out.println(timer.getCurrentPeriod().toString());
+                
+                this.scenario.runPeriod(this.timer.getCurrentPeriod());
+                this.open() ;
+                
 		this.bank.payDividend() ;
 		this.firms.payDividend() ;
 		this.firms.planProduction() ;
@@ -446,6 +458,9 @@ public class Circuit extends JamelObject {
 		this.households.consume() ;
 		this.bank.debtRecovery() ;// essayer de placer ça en tout début de période.
 		this.close() ;
+                long endTime = System.currentTimeMillis();
+                //System.out.println(timer.getCurrentPeriod().toString()+" : " + (endTime-startTime) + " milliseconds");
+                //System.out.print("*");
 	}
 
 	/**

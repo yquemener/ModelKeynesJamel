@@ -55,7 +55,7 @@ public abstract class JamelObject {
 	private static String scenarioFileName;
 
 	/** The timer. */
-	private static  Timer timer;
+	public static  Timer timer;
 
 	/** The line separator */
 	final static public String rc = System.getProperty("line.separator");
