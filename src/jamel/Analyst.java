@@ -262,13 +262,8 @@ public class Analyst implements AbstractSimulator {
 		final Circuit circuit = new Circuit(this, scenario);
 		circuit.setOutputFile(outputFile);
 		this.run=true;
-                for(String s : this.basicScenario)
-                {
-                    System.out.println(s);
-                }
 		while (this.run) {
 			circuit.doPeriod();
-                        circuit.bank.setNormalTerm("5");
 		}
 		/*String[] td = {""+i,"randomSeed" ,
 				"period" ,

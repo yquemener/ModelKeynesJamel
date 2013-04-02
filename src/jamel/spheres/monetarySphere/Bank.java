@@ -508,12 +508,17 @@ public class Bank extends JamelObject implements AccountHolder {
 	/** The capital ratio targeted by the bank. */
 	public float TargetedCapitalRatio = 0f;
 
+	/** The list of parameters and events of the simulation. */
+	private final LinkedList<String> scenario;
+
 	/**
 	 * Creates a new bank.
+	 * @param aScenario  the scenario of the simulation.
 	 */
-	public Bank() { 
+	public Bank(LinkedList<String> aScenario) { 
 		this.bankAccount = new BasicAccount(this); 
 		this.accountsList = new LinkedList<CurrentAccount>() ;
+		scenario = aScenario;
 	}
 
 	/**
@@ -711,9 +716,9 @@ public class Bank extends JamelObject implements AccountHolder {
 		if (bankrupt)
 			throw new RuntimeException("The bank is bankrupt.");
 		bankData = new BankData();
-		final String date = getCurrentPeriod().toString();
-		//final LinkedList<String> eList = Circuit.getParametersList(this.scenario, date, "\\.");
-		/*for (String string: eList){
+		/*final String date = getCurrentPeriod().toString();
+		final LinkedList<String> eList = Circuit.getParametersList(this.scenario, date, "\\.");
+		for (String string: eList){
 			String[] word = string.split("\\)",2);
 			String[] event = word[0].split("\\(",2);
 			if (event[0].equals("set")) 

@@ -270,7 +270,7 @@ public class Circuit extends JamelObject {
 		getRandom().setSeed(0); // Why that ?
 		this.crossSectionSeries = new CrossSectionSeries();
 		this.timesSeriesCollection = new TimeseriesCollection();
-		this.bank = new Bank();
+		this.bank = new Bank(getParametersList(aScenario,"Bank","\\."));
 		this.households = new HouseholdsSector(getParametersList(aScenario,"Households","\\."));
 		this.firms = new FirmsSector(getParametersList(aScenario,"Firms","\\."));
 	}
