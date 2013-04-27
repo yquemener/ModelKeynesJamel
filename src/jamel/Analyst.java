@@ -30,6 +30,7 @@ import jamel.util.Timer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -42,6 +43,7 @@ import java.util.Scanner;
 import javax.swing.JFileChooser;
 
 import org.jfree.data.time.Month;
+
 
 /**
  * A class for the sensitivity analyses.  
@@ -64,6 +66,7 @@ public class Analyst implements AbstractSimulator {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+                
 		return outputFile;
 	}
 
@@ -182,6 +185,19 @@ public class Analyst implements AbstractSimulator {
                     final FileWriter writer = new FileWriter(outputFile,true);
                     writer.write("Duration: "+((new Date()).getTime()-start)/1000.+" s.");
                     writer.close();
+                    
+                    // Very inefficient way of copying a file
+                    final File outputFile2 = new File("exports/"+name+"-latest.csv");
+                    final FileWriter writer2 = new FileWriter(outputFile2,false);
+                    final FileReader reader = new FileReader(outputFile);
+                    int c;
+                    while((c=reader.read())!=-1)
+                    {
+                        writer2.write(c);
+                    }
+                    writer2.close();
+                    reader.close();
+                    
             } catch (IOException e) {
                     e.printStackTrace();
             }
