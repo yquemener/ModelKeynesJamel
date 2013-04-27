@@ -1,0 +1,16 @@
+Réécriture du système de scénario
+---------------------------------
+
+(2013-04-27) Il me semble assez logique de sortir au maximum le contrôle des variables exogènes de la simulation elle même. Actuellement, beaucoup d'objets stockent les différents événements du scénario et modifient leurs propres variables exogènes quand ils constatent que le scénario l'ordonne. Je vois plusieurs raisons pour lesquelles il faudrait changer ce système :
+
+- Rendre les paramètre exogènes plus explicites
+- Ne pas avoir à réécrire l'inteprétation du scénario pour chaque nouvel agent
+- Permettre de rajouter facilement des paramètres exogènes
+- Permettre d'autres mode de modification de ces paramètres, ne passant pas par un scénario (une GUI permettant de modifier en live les paramètres de la simu par exemple)
+
+Une classe Scenario est donc créée, qui a pour mission de lire les scénario et d'effectuer les modifications de paramètres exogènes. Elle reste tout à fait extérieure à la simulation et est instanciée par Analyst. Elle prend une classe Circuit en argument. Cette dernière ignore l'existence de Scenario.
+
+Suppression de la classe Blackboard
+-----------------------------------
+
+(2013-04-27) Blackboard est en réalité un HashMap qui dispose d'une subtilité : ses éléments peuvent expirer dans le temps. Cependant, cette propriété ne semble pas utilisée du tout. Si les tests le confirment je remplacerai Blackboard par une simple HashMap.
