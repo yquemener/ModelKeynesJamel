@@ -40,7 +40,6 @@ import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.JFileChooser;
-import javax.swing.ProgressMonitor;
 
 import org.jfree.data.time.Month;
 
@@ -128,7 +127,8 @@ public class Analyst implements AbstractSimulator {
 				e.printStackTrace();
 				throw new RuntimeException("File not found.");
 			}
-			new Analyst(file.getName(),parameters);
+			Analyst a = new Analyst(parameters);
+                        a.run(file.getName());
 		}
 	}
 
@@ -155,36 +155,36 @@ public class Analyst implements AbstractSimulator {
 	 * @param name  the name of the simulation.
 	 * @param aParameters  the parameters of the simulation.
 	 */
-	public Analyst(String name, LinkedList<String> aParameters) {
+	public Analyst(LinkedList<String> aParameters) {
 		this.basicScenario = new LinkedList<String>(); // Creates a new empty scenario.
 		this.variables = new HashMap<String,double[]>(); // Creates a new empty map that contains variables.
 		initAnalysis(aParameters); // Extract analysis parameters and fills the scenario with the instructions. 
-		final long start = (new Date()).getTime();
-		final File outputFile = getNewOutputFile(name);
 		
-		final int max = sim*(1+randomSeedMax-randomSeedMin);
-		int count = 0;
-		final ProgressMonitor progressMonitor = new ProgressMonitor(null,
-				"Running "+name,
-				"", count,max);
-		progressMonitor.setMillisToDecideToPopup(0);
+        }
+        
+        public void run(String name)
+        {
+            final long start = (new Date()).getTime();
+            final File outputFile = getNewOutputFile(name);
 
-		for(int i=0; i<sim; i++) {
-			for(int randomSeed=this.randomSeedMin; randomSeed<=randomSeedMax; randomSeed++) {
-				progressMonitor.setProgress(count);
-				progressMonitor.setNote("Simulation "+count+" on "+max);
-				newSimulation(name,i,randomSeed,outputFile);
-				count++;
-			}			
-		}
-		try {
-			final FileWriter writer = new FileWriter(outputFile,true);
-			writer.write("Duration: "+((new Date()).getTime()-start)/1000.+" s.");
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		progressMonitor.close();
+            final int max = sim*(1+randomSeedMax-randomSeedMin);
+            int count = 0;
+
+            for(int i=0; i<sim; i++) {
+                    for(int randomSeed=this.randomSeedMin; randomSeed<=randomSeedMax; randomSeed++) {
+                            //progressMonitor.setProgress(count);
+                            //progressMonitor.setNote("Simulation "+count+" on "+max);
+                            newSimulation(name,i,randomSeed,outputFile);
+                            count++;
+                    }			
+            }
+            try {
+                    final FileWriter writer = new FileWriter(outputFile,true);
+                    writer.write("Duration: "+((new Date()).getTime()-start)/1000.+" s.");
+                    writer.close();
+            } catch (IOException e) {
+                    e.printStackTrace();
+            }
 	}
 
 	/**

@@ -86,7 +86,7 @@ public class Scenario {
                             throw new RuntimeException("Event tries to access forbidden field :"+k);
                         }
                     }
-                }                
+                }
             }
         }
         @Override
