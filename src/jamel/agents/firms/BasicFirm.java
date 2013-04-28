@@ -28,7 +28,6 @@ package jamel.agents.firms;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -83,7 +82,10 @@ public class BasicFirm extends JamelObject implements Firm {
 	private final StoreManager storeManager ;
 
 	/** A map that contains the information shared with the managers. */
-	protected final Blackboard blackboard = new Blackboard();
+	public final Blackboard<InternalLabel> blackboard = new Blackboard<InternalLabel>();
+
+  	/** The external repository of parameters. */
+	public final Blackboard<ExternalLabel> externalParams;
 
 	/** The data. */
 	protected FirmDataset data;
@@ -111,23 +113,22 @@ public class BasicFirm extends JamelObject implements Firm {
 	 */
 	public BasicFirm( 
 			String aName, 
-			CapitalOwner owner,
-			Map<String,String> someParameters) {
-		this.defaultParameters();
-		this.parseParameters(someParameters);
-		this.init();
+			CapitalOwner owner) {
+        this.init();
 		this.name = aName ;
 		this.birthPeriod = getCurrentPeriod().getValue();
-		this.account = Circuit.getNewAccount(this);
-		this.owner = owner ;
-		this.factory = getNewFactory() ;
-		this.purchasingManager = getNewPurchasingManager();
-		this.workforceManager = getNewWorkforceManager();
-		this.storeManager = new StoreManager(this, account,this.blackboard);
-		this.productionManager = getNewProductionManager();
-		this.pricingManager = getNewPricingManager();
-		this.type=(ProductionType) this.blackboard.get(Labels.PRODUCTION);
-	}
+  		this.account = Circuit.getNewAccount(this);
+        this.externalParams = (Blackboard<ExternalLabel>)
+                (Circuit.getCircuit().firmsParams.clone());
+  		this.owner = owner ;
+  		this.factory = getNewFactory();
+  		this.purchasingManager = getNewPurchasingManager();
+  		this.workforceManager = getNewWorkforceManager();
+  		this.storeManager = new StoreManager(this, account,this);
+  		this.productionManager = getNewProductionManager();
+  		this.pricingManager = getNewPricingManager();
+  		this.type=(ProductionType) this.externalParams.get(ExternalLabel.PRODUCTION);
+  	}
 
 	/**
 	 * Calculates the dividend.
@@ -148,25 +149,12 @@ public class BasicFirm extends JamelObject implements Firm {
 	 * @param params  the map.
 	 * @param key  the key.
 	 */
-	private void putParam(Map<String, Object> params, String key) {
+	private void putParam(Map<InternalLabel, Object> params, InternalLabel key) {
 		if (!this.blackboard.containsKey(key))
 			throw new RuntimeException("Key not found: "+key);
 		params.put(key,this.blackboard.get(key));		
 	}
 
-	/**
-	 * Sets the default parameters.
-	 */
-	protected void defaultParameters() {
-		this.blackboard.put(Labels.PARAM_FACTORY_MACHINES, 10,null);
-		this.blackboard.put(Labels.PRICE_FLEXIBILITY, 0.1f,null);
-		this.blackboard.put(Labels.PARAM_FACTORY_PROD_MAX, 100,null);
-		this.blackboard.put(Labels.PARAM_FACTORY_PROD_MIN, 100,null);
-		this.blackboard.put(Labels.PARAM_FACTORY_PRODUCTION_TIME, 4,null);
-		this.blackboard.put(Labels.PRODUCTION, ProductionType.integratedProduction,null);
-		this.blackboard.put(Labels.WAGE_DOWN_FLEX, 0.02f,null);
-		this.blackboard.put(Labels.WAGE_UP_FLEX, 0.03f,null);
-	}
 
 	/**
 	 * Finances the production.
@@ -175,10 +163,10 @@ public class BasicFirm extends JamelObject implements Firm {
 		final Long productionBudget;
 		if (this.purchasingManager!=null) {
 			this.purchasingManager.computeBudget();
-			productionBudget = (Long)this.blackboard.get(Labels.WAGEBILL_BUDGET)+(Long)this.blackboard.get(Labels.RAW_MATERIALS_BUDGET);
+			productionBudget = (Long)this.blackboard.get(InternalLabel.WAGEBILL_BUDGET)+(Long)this.blackboard.get(InternalLabel.RAW_MATERIALS_BUDGET);
 		}
 		else {
-			productionBudget = (Long)this.blackboard.get(Labels.WAGEBILL_BUDGET);
+			productionBudget = (Long)this.blackboard.get(InternalLabel.WAGEBILL_BUDGET);
 		}
 		final Long financingNeed = productionBudget-account.getAmount() ;
 		if ( financingNeed>0 ) {
@@ -206,7 +194,7 @@ public class BasicFirm extends JamelObject implements Firm {
 	 * @return a new factory.
 	 */
 	protected Factory getNewFactory() {
-		return Factories.getNewFactory(this.blackboard);
+		return Factories.getNewFactory(this);
 	}
 
 	/**
@@ -214,7 +202,7 @@ public class BasicFirm extends JamelObject implements Firm {
 	 * @return a new basic pricing manager.
 	 */
 	protected PricingManager getNewPricingManager() {
-		return new PricingManager(this.blackboard);
+		return new PricingManager(this);
 	}
 
 	/**
@@ -222,7 +210,7 @@ public class BasicFirm extends JamelObject implements Firm {
 	 * @return a new basic production manager.
 	 */
 	protected ProductionManager getNewProductionManager() {
-		return new ProductionManager(this.blackboard);
+		return new ProductionManager(this);
 	}
 
 	/**
@@ -232,7 +220,7 @@ public class BasicFirm extends JamelObject implements Firm {
 	protected PurchasingManager getNewPurchasingManager() {
 		final PurchasingManager aPurchasingManager;
 		if (FinalFactory.class.isInstance(this.factory))
-			aPurchasingManager = new PurchasingManager(this.account,this.blackboard);
+			aPurchasingManager = new PurchasingManager(this.account,this);
 		else
 			aPurchasingManager = null;
 		return aPurchasingManager;
@@ -243,7 +231,7 @@ public class BasicFirm extends JamelObject implements Firm {
 	 * @return the new manager.
 	 */
 	protected WorkforceManager getNewWorkforceManager() {
-		return new WorkforceManager(this, this.account,this.blackboard);
+		return new WorkforceManager(this, this.account,this);
 	}
 
 	/**
@@ -253,77 +241,41 @@ public class BasicFirm extends JamelObject implements Firm {
 	}
 
 	/**
-	 * Parses the given parameters.
-	 * Then records the parsed parameters in the black board.
-	 * @param params  the parameters to parse.
-	 */
-	protected void parseParameters(Map<String, String> params) {
-		final Set<String> integers = new HashSet<String>();
-		final Set<String> floats = new HashSet<String>();
-		integers.add(Labels.PARAM_FACTORY_MACHINES);
-		floats.add(Labels.PRICE_FLEXIBILITY);
-		integers.add(Labels.PARAM_FACTORY_PROD_MAX);
-		integers.add(Labels.PARAM_FACTORY_PROD_MIN);
-		integers.add(Labels.PARAM_FACTORY_PRODUCTION_TIME);
-		floats.add(Labels.TECH_COEFF);
-		floats.add(Labels.WAGE_DOWN_FLEX);
-		floats.add(Labels.WAGE_UP_FLEX);
-		for(Entry<String, String> entry : params.entrySet()) {
-			final String key = entry.getKey();
-			final String value = entry.getValue();
-			if (integers.contains(key)) {
-				this.blackboard.put(key, Integer.parseInt(value),null);
-			}
-			else if (floats.contains(key)) {
-				this.blackboard.put(key, Float.parseFloat(value),null);				
-			}
-			else if (key.equals(Labels.PRODUCTION)) {
-				this.blackboard.put(key, ProductionType.valueOf(value),null);				
-			}
-			else if (key.equals("type")) {// FIXME c'est moche, réflêchir à ça.
-			}
-			else  {
-				throw new RuntimeException("Unknown parameter: "+key+"="+value);
-			}
-		}
-	}
-
-	/**
 	 * Updates the data.
 	 */
 	protected void updateData() {
 		data.name = this.name;
 		data.age = getCurrentPeriod().getValue()-this.birthPeriod;
-		data.grossProfit=(Long)this.blackboard.get(Labels.GROSS_PROFIT);
+		data.grossProfit=(Long)this.blackboard.get(InternalLabel.GROSS_PROFIT);
 		data.bankrupt=this.bankrupt;
-		data.maxProduction=(Integer)this.blackboard.get(Labels.PRODUCTION_MAX);
-		data.anticipatedWorkforce=(Integer)this.blackboard.get(Labels.WORKFORCE_TARGET);
+		data.maxProduction=(Integer)this.blackboard.get(InternalLabel.PRODUCTION_MAX);
+		data.anticipatedWorkforce=(Integer)this.blackboard.get(InternalLabel.WORKFORCE_TARGET);
 		data.deposit=this.account.getAmount();
 		data.debt=this.account.getDebt();
 		data.doubtDebt=0;
 		if (this.account.getDebtorStatus().equals(Quality.DOUBTFUL)) data.doubtDebt=this.account.getDebt();;
 		data.capital=this.getNetWorth();
-		data.invUnfVal=(Long)this.blackboard.get(Labels.INVENTORY_UG_VALUE);
-		data.invVal=(Long)this.blackboard.get(Labels.INVENTORY_FG_VALUE);
-		data.invVol=(Integer)this.blackboard.get(Labels.INVENTORY_FG_VOLUME);
-		data.jobOffers=(Integer)this.blackboard.get(Labels.JOBS_OFFERED);
-		data.machinery=(Integer)this.blackboard.get(Labels.MACHINERY);
-		data.prodVol=(Integer)this.blackboard.get(Labels.PRODUCTION_VOLUME);
-		data.prodVal=(Long)this.blackboard.get(Labels.PRODUCTION_VALUE);
+		data.invUnfVal=(Long)this.blackboard.get(InternalLabel.INVENTORY_UG_VALUE);
+		data.invVal=(Long)this.blackboard.get(InternalLabel.INVENTORY_FG_VALUE);
+		data.invVol=(Integer)this.blackboard.get(InternalLabel.INVENTORY_FG_VOLUME);
+		data.jobOffers=(Integer)this.blackboard.get(InternalLabel.JOBS_OFFERED);
+		data.machinery=(Integer)this.blackboard.get(InternalLabel.MACHINERY);
+		data.prodVol=(Integer)this.blackboard.get(InternalLabel.PRODUCTION_VOLUME);
+		data.prodVal=(Long)this.blackboard.get(InternalLabel.PRODUCTION_VALUE);
 		data.reserveTarget=this.reserveTarget;
-		data.salesPVal=(Long) this.blackboard.get(Labels.SALES_VALUE);
-		data.salesCVal=(Long) this.blackboard.get(Labels.COST_OF_GOODS_SOLD);
-		data.salesVol=(Integer) this.blackboard.get(Labels.SALES_VOLUME);
-		data.vacancies=(Integer) this.blackboard.get(Labels.VACANCIES);
-		data.wageBill=(Long)this.blackboard.get(Labels.WAGEBILL);
-		data.workforce=(Integer)this.blackboard.get(Labels.WORKFORCE);
-		data.price=(Double)this.blackboard.get(Labels.PRICE);
+		data.salesPVal=(Long) this.blackboard.get(InternalLabel.SALES_VALUE);
+		data.salesCVal=(Long) this.blackboard.get(InternalLabel.COST_OF_GOODS_SOLD);
+		data.salesVol=(Integer) this.blackboard.get(InternalLabel.SALES_VOLUME);
+		data.vacancies=(Integer) this.blackboard.get(InternalLabel.VACANCIES);
+		data.wageBill=(Long)this.blackboard.get(InternalLabel.WAGEBILL);
+		data.workforce=(Integer)this.blackboard.get(InternalLabel.WORKFORCE);
+		data.price=(Double)this.blackboard.get(InternalLabel.PRICE);
 		data.factory=this.factory.getClass().getName();
 		data.production=this.getType();
 		if (FinalFactory.class.isInstance(this.factory)) {
-			data.intermediateNeedsVolume=(Integer)this.blackboard.get(Labels.RAW_MATERIALS_NEEDS);
-			data.intermediateNeedsBudget=(Long)this.blackboard.get(Labels.RAW_MATERIALS_BUDGET);
-			data.rawMaterialEffectiveVolume=(Integer)this.blackboard.get(Labels.RAW_MATERIALS_VOLUME);
+			data.intermediateNeedsVolume=(Integer)this.blackboard.get(InternalLabel.RAW_MATERIALS_NEEDS);
+			data.intermediateNeedsBudget=(Long)this.blackboard.get(InternalLabel.RAW_MATERIALS_BUDGET);
+			data.rawMaterialEffectiveVolume=(Integer)this.blackboard.get(InternalLabel.RAW_MATERIALS_VOLUME);
 		}
 	}
 
@@ -367,9 +319,9 @@ public class BasicFirm extends JamelObject implements Firm {
 	public GoodsOffer getGoodsOffer() {
 		if (bankrupt)
 			throw new RuntimeException("Bankrupted.");
-		GoodsOffer offer = (GoodsOffer) this.blackboard.get(Labels.OFFER_OF_GOODS);
+		GoodsOffer offer = (GoodsOffer) this.blackboard.get(InternalLabel.OFFER_OF_GOODS);
 		if ((offer!=null)&&(offer.getVolume()==0)) {
-			this.blackboard.remove(Labels.OFFER_OF_GOODS);
+			this.blackboard.remove(InternalLabel.OFFER_OF_GOODS);
 			offer=null;
 		}
 		return offer;
@@ -383,10 +335,10 @@ public class BasicFirm extends JamelObject implements Firm {
 	public JobOffer getJobOffer() {
 		if (bankrupt)
 			throw new RuntimeException("Bankrupted.");
-		JobOffer offer = (JobOffer) this.blackboard.get(Labels.OFFER_OF_JOB);
+		JobOffer offer = (JobOffer) this.blackboard.get(InternalLabel.OFFER_OF_JOB);
 		if ((offer!=null)&&(offer.getVolume()==0)){
 			offer=null;
-			this.blackboard.remove(Labels.OFFER_OF_JOB);
+			this.blackboard.remove(InternalLabel.OFFER_OF_JOB);
 		}
 		return offer;
 	}
@@ -400,62 +352,6 @@ public class BasicFirm extends JamelObject implements Firm {
 		return this.name;
 	}
 
-	/**
-	 * Returns a map that contains the parameters of the firm.
-	 * @return a map that contains the parameters of the firm.
-	 */
-	public Map<String, Object> getParameters() {
-		final Map<String, Object> params = new HashMap<String, Object>();
-		params.put("type",this.getClass().getName());
-		putParam(params,Labels.PARAM_FACTORY_MACHINES);
-		putParam(params,Labels.PRICE_FLEXIBILITY);
-		putParam(params,Labels.PARAM_FACTORY_PROD_MAX);
-		putParam(params,Labels.PARAM_FACTORY_PROD_MIN);
-		putParam(params,Labels.PARAM_FACTORY_PRODUCTION_TIME);
-		putParam(params,Labels.PRODUCTION);
-		putParam(params,Labels.WAGE_DOWN_FLEX);
-		putParam(params,Labels.WAGE_UP_FLEX);
-		if (((ProductionType)params.get(Labels.PRODUCTION)).equals(ProductionType.finalProduction))
-			putParam(params,Labels.TECH_COEFF);
-		return params;
-	}
-
-	/**
-	 * Returns a map that contains the parameters of the firm.
-	 * @return a map that contains the parameters of the firm.
-	 */
-	/*public Map<String, String> getParameters() {
-		final Map<String, String> params = new HashMap<String, String>();
-		params.put("type",this.getClass().getName());
-		params.put(Labels.PARAM_FACTORY_MACHINES,this.blackboard.get(Labels.PARAM_FACTORY_MACHINES).toString());
-		params.put(Labels.PRICE_FLEXIBILITY,this.blackboard.get(Labels.PRICE_FLEXIBILITY).toString());
-		params.put(Labels.PARAM_FACTORY_PROD_MAX,this.blackboard.get(Labels.PARAM_FACTORY_PROD_MAX).toString());
-		params.put(Labels.PARAM_FACTORY_PROD_MIN,this.blackboard.get(Labels.PARAM_FACTORY_PROD_MIN).toString());
-		params.put(Labels.PARAM_FACTORY_PRODUCTION_TIME,this.blackboard.get(Labels.PARAM_FACTORY_PRODUCTION_TIME).toString());
-		params.put(Labels.PRODUCTION,this.blackboard.get(Labels.PRODUCTION).toString());
-		params.put(Labels.WAGE_DOWN_FLEX,this.blackboard.get(Labels.WAGE_DOWN_FLEX).toString());
-		params.put(Labels.WAGE_UP_FLEX,this.blackboard.get(Labels.WAGE_UP_FLEX).toString());
-		if (this.blackboard.get(Labels.TECH_COEFF)!=null)
-			params.put(Labels.TECH_COEFF,this.blackboard.get(Labels.TECH_COEFF).toString());
-		return params;
-	}*/
-
-	@Override
-	public String getParametersString() {// TODO utiliser ici getParameters();
-		String string = 
-				"type="+this.getClass().getName()+
-				","+Labels.PARAM_FACTORY_MACHINES+"="+this.blackboard.get(Labels.PARAM_FACTORY_MACHINES).toString()+
-				","+Labels.PRICE_FLEXIBILITY+"="+this.blackboard.get(Labels.PRICE_FLEXIBILITY).toString()+
-				","+Labels.PARAM_FACTORY_PROD_MAX+"="+this.blackboard.get(Labels.PARAM_FACTORY_PROD_MAX).toString()+
-				","+Labels.PARAM_FACTORY_PROD_MIN+"="+this.blackboard.get(Labels.PARAM_FACTORY_PROD_MIN).toString()+
-				","+Labels.PARAM_FACTORY_PRODUCTION_TIME+"="+this.blackboard.get(Labels.PARAM_FACTORY_PRODUCTION_TIME).toString()+
-				","+Labels.PRODUCTION+"="+this.blackboard.get(Labels.PRODUCTION).toString()+
-				","+Labels.WAGE_DOWN_FLEX+"="+this.blackboard.get(Labels.WAGE_DOWN_FLEX).toString()+
-				","+Labels.WAGE_UP_FLEX+"="+this.blackboard.get(Labels.WAGE_UP_FLEX).toString();
-		if (this.blackboard.get(Labels.TECH_COEFF)!=null)
-			string = string+","+Labels.TECH_COEFF+"="+this.blackboard.get(Labels.TECH_COEFF).toString();
-		return string;
-	}
 
 	/**
 	 * Returns the type of production of the firm.
@@ -511,28 +407,13 @@ public class BasicFirm extends JamelObject implements Firm {
 	/** 
 	 * Opens the firm for a new period.<br>
 	 * Initializes data and executes events.
-	 * @param eList - a list of strings that describes the events for the current period. 
 	 */
 	@Override
-	public void open(LinkedList<String> eList) {
+	public void open() {
 		if (bankrupt)
 			throw new RuntimeException("Bankrupted.");
 		this.blackboard.cleanUp();
 		this.data = new FirmDataset();
-		for (String string: eList){
-			String[] word = string.split("\\)",2);
-			String[] event = word[0].split("\\(",2);
-			if (event[0].equals("set")) {
-				final String[] parameters = event[1].split(",");
-				final Map<String, String> params = new HashMap<String, String>();
-				for (String p:parameters) {
-					String[] words = p.split("=", 1);
-					params.put(words[0], words[1]);
-				}
-			}
-			else 
-				throw new RuntimeException("Unknown event \""+event[0]+"\".");
-		}
 		if (this.purchasingManager!=null) this.purchasingManager.open();
 		this.workforceManager.open();
 		this.factory.open();
@@ -567,6 +448,7 @@ public class BasicFirm extends JamelObject implements Firm {
 	/**
 	 * Prepares the production.
 	 */
+  @Override
 	public void prepareProduction() {
 		if (bankrupt)
 			throw new RuntimeException("Bankrupted.");
@@ -580,6 +462,7 @@ public class BasicFirm extends JamelObject implements Firm {
 	/**
 	 * Produces.
 	 */
+  @Override
 	public void production() {
 		if (bankrupt)
 			throw new RuntimeException("Bankrupted.");
@@ -596,12 +479,25 @@ public class BasicFirm extends JamelObject implements Firm {
 	 * @param check - the payment.
 	 * @return the goods sold.
 	 */
+  @Override
 	public Goods sell( GoodsOffer offer, int volume, Check check ) {
 		if (bankrupt)
 			throw new RuntimeException("Bankrupted.");
 		Goods sale = this.storeManager.sell( offer, volume, check );
 		return sale;
 	}
+    
+  @Override
+    public void setParam(ExternalLabel l, Object v)
+    {
+      this.externalParams.put(l, v);
+    }
+    
+  @Override
+    public Blackboard<ExternalLabel> getExternalParams()
+    {
+      return this.externalParams;
+    }
 
 }
 

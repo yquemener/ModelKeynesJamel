@@ -38,7 +38,7 @@ public class BlackBoardElement extends JamelObject {
 	final private JamelPeriod period;
 	
 	/** The validity of the element, as a number of periods since the creation of the element.*/
-	private Integer validity;
+	public Integer validity;
 	
 	/** The value of the element. */
 	private Object value;

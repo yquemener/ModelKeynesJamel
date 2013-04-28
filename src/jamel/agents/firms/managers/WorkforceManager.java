@@ -29,7 +29,9 @@ package jamel.agents.firms.managers;
 import jamel.Circuit;
 import jamel.JamelObject;
 import jamel.agents.firms.Firm;
-import jamel.agents.firms.Labels;
+import jamel.agents.firms.BasicFirm;
+import jamel.agents.firms.InternalLabel;
+import jamel.agents.firms.ExternalLabel;
 import jamel.agents.roles.Worker;
 import jamel.spheres.monetarySphere.Account;
 import jamel.spheres.monetarySphere.Check;
@@ -73,8 +75,13 @@ public class WorkforceManager extends JamelObject {
 	/** The current account of the firm. */
 	final private Account account;
 
-	/** The black board. */
-	final private Blackboard blackBoard;
+	/** The black board of the firm, used for internal communication between
+         *  managers.
+         */
+	final private Blackboard<InternalLabel> blackboard;
+
+	/** The external repository of parameters. */
+	final private Blackboard<ExternalLabel> externalParams;
 
 	/** The number of workers hired in the current period. */
 	private Integer effectiveHiring ; 
@@ -118,13 +125,14 @@ public class WorkforceManager extends JamelObject {
 	 * @param theEmployerAccount  the account of the employer.
 	 * @param blackboard2  the blackBoard.
 	 */
-	public WorkforceManager(Firm theEmployer, Account theEmployerAccount, Blackboard blackboard2) {
+	public WorkforceManager(Firm theEmployer, Account theEmployerAccount, BasicFirm parent) {
 		this.vacanciesTimeSeries.setMaximumItemAge(12);// TODO: Should be a parameter.
 		this.targetedWorkforceTimeSeries.setMaximumItemAge(12);// TODO: Should be a parameter.
 		this.payroll = new LinkedList<EmploymentContract>();
 		this.employer = theEmployer;
 		this.account = theEmployerAccount;
-		this.blackBoard = blackboard2;
+		this.blackboard = parent.blackboard;
+                this.externalParams = parent.externalParams;
 	}
 
 	/**
@@ -137,8 +145,8 @@ public class WorkforceManager extends JamelObject {
 		else
 			vacancies = 0 ;
 		this.vacanciesTimeSeries.add(getCurrentPeriod().getMonth(), vacancies);
-		this.targetedWorkforceTimeSeries.add(getCurrentPeriod().getMonth(), (Integer)this.blackBoard.get(Labels.WORKFORCE_TARGET));
-		this.blackBoard.put(Labels.VACANCIES, vacancies);
+		this.targetedWorkforceTimeSeries.add(getCurrentPeriod().getMonth(), (Integer)this.blackboard.get(InternalLabel.WORKFORCE_TARGET));
+		this.blackboard.put(InternalLabel.VACANCIES, vacancies);
 	}
 
 	/**
@@ -189,8 +197,8 @@ public class WorkforceManager extends JamelObject {
 			else this.offeredWage = defaultWage ;
 		}
 		else {
-			final float wageUpwardFlexibility = (Float) this.blackBoard.get(Labels.WAGE_UP_FLEX);
-			final float wageDownwardFlexibility = (Float) this.blackBoard.get(Labels.WAGE_DOWN_FLEX);
+			final float wageUpwardFlexibility = (Float) this.externalParams.get(ExternalLabel.WAGE_UP_FLEX);
+			final float wageDownwardFlexibility = (Float) this.externalParams.get(ExternalLabel.WAGE_DOWN_FLEX);
 			final double currentVacancyRate = this.getVacanciesRate() ;
 			final float alpha1 = getRandom().nextFloat();
 			final float alpha2 = getRandom().nextFloat();
@@ -258,7 +266,7 @@ public class WorkforceManager extends JamelObject {
 					this.jobsOffered,
 					Math.round(this.offeredWage) 
 					) ;
-			this.blackBoard.put(Labels.OFFER_OF_JOB, jobOffer);
+			this.blackboard.put(InternalLabel.OFFER_OF_JOB, jobOffer);
 		}
 	}
 
@@ -295,8 +303,8 @@ public class WorkforceManager extends JamelObject {
 			}
 			if (effectiveWorkforce!=this.payroll.size()) throw new RuntimeException("Workforce is not consistent with the payroll.");
 		}
-		this.blackBoard.put(Labels.WORKFORCE,effectiveWorkforce);
-		this.blackBoard.put(Labels.WAGEBILL,wageBill);
+		this.blackboard.put(InternalLabel.WORKFORCE,effectiveWorkforce);
+		this.blackboard.put(InternalLabel.WAGEBILL,wageBill);
 	}
 
 	/**
@@ -314,10 +322,10 @@ public class WorkforceManager extends JamelObject {
 
 		// On calcule le besoin de main d'oeuvre.
 
-		final int machinery = (Integer)this.blackBoard.get(Labels.MACHINERY);
-		final float productionLevel = (Float)this.blackBoard.get(Labels.PRODUCTION_LEVEL);
+		final int machinery = (Integer)this.blackboard.get(InternalLabel.MACHINERY);
+		final float productionLevel = (Float)this.blackboard.get(InternalLabel.PRODUCTION_LEVEL);
 		final int targetedWorkforce = (int) ((machinery*productionLevel)/100f);
-		this.blackBoard.put(Labels.WORKFORCE_TARGET, targetedWorkforce);		
+		this.blackboard.put(InternalLabel.WORKFORCE_TARGET, targetedWorkforce);		
 
 		// Si la main d'oeuvre employée dépasse les besoins, on licencie. 
 
@@ -334,7 +342,7 @@ public class WorkforceManager extends JamelObject {
 				this.jobsOffered = 0;				
 			}
 		}
-		this.blackBoard.put(Labels.JOBS_OFFERED, this.jobsOffered);
+		this.blackboard.put(InternalLabel.JOBS_OFFERED, this.jobsOffered);
 
 		if (targetedHiring>0) 
 			updateWage();
@@ -348,8 +356,8 @@ public class WorkforceManager extends JamelObject {
 		if ( this.jobsOffered>0 ) {
 			this.wageBillBudget += Math.round(this.offeredWage)*this.jobsOffered;
 		}
-		this.blackBoard.put(Labels.WAGEBILL_BUDGET, this.wageBillBudget);
-		this.blackBoard.put(Labels.PAYROLL, this.payroll);
+		this.blackboard.put(InternalLabel.WAGEBILL_BUDGET, this.wageBillBudget);
+		this.blackboard.put(InternalLabel.PAYROLL, this.payroll);
 	}
 
 }

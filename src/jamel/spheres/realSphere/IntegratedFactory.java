@@ -27,7 +27,8 @@
 package jamel.spheres.realSphere;
 
 
-import jamel.agents.firms.Labels;
+import jamel.agents.firms.BasicFirm;
+import jamel.agents.firms.ExternalLabel;
 import jamel.util.Blackboard;
 
 import java.util.HashMap;
@@ -121,8 +122,8 @@ public class IntegratedFactory extends AbstractFactory {
 	 * Creates a new factory.
 	 * @param parameters - the list of parameters.
 	 */
-	public IntegratedFactory(Blackboard parameters) {
-		super(parameters);
+	public IntegratedFactory(BasicFirm parent) {
+		super(parent);
 		this.finishedGoodsInventory = new FinalGoods();
 	}
 
@@ -131,12 +132,12 @@ public class IntegratedFactory extends AbstractFactory {
 	 * @return a HashMap.
 	 */
 	@Override
-	protected Map<String, Object> getDefaultParameters() {
-		final Map<String, Object> map2 = new HashMap<String, Object>();
-		map2.put(Labels.PARAM_FACTORY_MACHINES, "10");		
-		map2.put(Labels.PARAM_FACTORY_PROD_MIN, "100");		
-		map2.put(Labels.PARAM_FACTORY_PROD_MAX, "100");		
-		map2.put(Labels.PARAM_FACTORY_PRODUCTION_TIME, "8");
+	protected Map<ExternalLabel, Object> getDefaultParameters() {
+		final Map<ExternalLabel, Object> map2 = new HashMap<ExternalLabel, Object>();
+		map2.put(ExternalLabel.PARAM_FACTORY_MACHINES, "10");		
+		map2.put(ExternalLabel.PARAM_FACTORY_PROD_MIN, "100");		
+		map2.put(ExternalLabel.PARAM_FACTORY_PROD_MAX, "100");		
+		map2.put(ExternalLabel.PARAM_FACTORY_PRODUCTION_TIME, "8");
 		return map2;
 	}		
 

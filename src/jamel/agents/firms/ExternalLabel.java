@@ -24,30 +24,46 @@
  * [Oracle and Java are registered trademarks of Oracle and/or its affiliates.]
  */
 
-package jamel.util;
+package jamel.agents.firms;
+
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
+
 
 /**
- * A shared repository of resources and contributed information.
+ * Contains the labels of the parameters of the firms.
  */
-public class Blackboard<KeyType> extends HashMap<KeyType,Object> {
+public enum ExternalLabel {
+	PARAM_FACTORY_MACHINES("size"),
+	PARAM_FACTORY_PROD_MAX("prodMax"),
+	PARAM_FACTORY_PROD_MIN("prodMin"),
+	PARAM_FACTORY_PRODUCTION_TIME("productionTime"),
+	PRICE_FLEXIBILITY("price flexibility"),
+	PRODUCTION("production"),
+	TECH_COEFF("coefficient"),
+	WAGE_DOWN_FLEX("wage downward flex"),
+	WAGE_UP_FLEX("wage upward flex");
+        
+    private String description;
+    
+    private final static HashMap<String, ExternalLabel> hash;
+    
+    // Static constructor
+    static{
+      hash = new HashMap<String, ExternalLabel>();
+      for(ExternalLabel l:ExternalLabel.values())
+      {
+        hash.put(l.toString(), l);
+      }
+    }
+    
+    ExternalLabel(String s){
+        description = s;
+    }
+           
+    @Override
+    public String toString()    { return description; }
 
-
-	/**
-	 * Removes all invalid elements.
-	 */
-	public void cleanUp() {
-		final Set<KeyType> blackList=new HashSet<KeyType>();
-		for(Entry<KeyType, Object> entry : this.entrySet()) {
-                    blackList.add(entry.getKey());
-		}
-		for(KeyType key:blackList) {
-			this.remove(key);
-		}
-	}
+    public static ExternalLabel fromString(String s) { return hash.get(s); }
 
 }

@@ -105,8 +105,8 @@ public class FirmsSector extends JamelObject {
 		final String currentDate = getCurrentPeriod().toString();
 		Circuit.println(currentDate+" Firm Failure ("+aBankruptFirm.getName()+")");
 		final String someMonthsLater = getCurrentPeriod().getNewPeriod(12+getRandom().nextInt(12)).toString();
-		final String instructions = aBankruptFirm.getParametersString();
-		this.scenario.add(someMonthsLater+".new(firms=1,"+instructions+")");
+		//final String instructions = aBankruptFirm.getParametersString();
+		this.scenario.add(someMonthsLater+".new(firms=1,type="+aBankruptFirm.getClass().getName()+")");
 		/*final String type = aBankruptFirm.getClass().getName();
 		final String production = aBankruptFirm.getProduction().name();
 		this.scenario.add(someMonthsLater+".new(firms=1,type="+type+",production="+production+")");*/
@@ -143,7 +143,22 @@ public class FirmsSector extends JamelObject {
 			final CapitalOwner owner = Circuit.getRandomCapitalOwner();
 			try {
 				final String name = "Company "+countFirms;
-				final Firm newFirm = (Firm) Class.forName(className,false,ClassLoader.getSystemClassLoader()).getConstructor(String.class,CapitalOwner.class,Map.class).newInstance(name,owner,parametersMap);
+                System.out.println(""+Class.forName(className,false,ClassLoader.getSystemClassLoader()).getConstructor(String.class,CapitalOwner.class));
+				final Firm newFirm = (Firm) Class.forName(className,false,ClassLoader.getSystemClassLoader())
+                        .getConstructor(String.class,CapitalOwner.class).newInstance(name,owner);
+                for(String label:parametersMap.keySet())
+                {
+                  Object o;
+                  String s = parametersMap.get(label);
+                  try{ o = Float.parseFloat(s);}
+                  catch(NumberFormatException e) {
+                    try{ o = Integer.parseInt(s);}
+                    catch(NumberFormatException e2) {
+                      o = s;
+                    }}
+                  newFirm.setParam(ExternalLabel.fromString(label), o);
+                }
+                
 				firmsList.add(newFirm) ;
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -350,13 +365,10 @@ public class FirmsSector extends JamelObject {
 				if (event[0].equals("new"))
 					// This event must be treated at the FirmsSector level.
 					newFirms(getParamHashMap(event[1]));
-				else 
-					// The other events must be treated at the level of each firm.
-					eList2.add(string);
 			}
 		}
 		for (Firm selectedFirm : firmsList) {
-			selectedFirm.open(eList2) ;
+			selectedFirm.open() ;
 		}
 	}
 

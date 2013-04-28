@@ -27,7 +27,9 @@
 package jamel.spheres.realSphere;
 
 
-import jamel.agents.firms.Labels;
+import jamel.agents.firms.BasicFirm;
+import jamel.agents.firms.ExternalLabel;
+import jamel.agents.firms.InternalLabel;
 import jamel.util.Blackboard;
 
 import java.util.HashMap;
@@ -136,8 +138,8 @@ public class FinalFactory extends AbstractFactory {
 	 * Creates a new factory.
 	 * @param parameters - the list of parameters.
 	 */
-	public FinalFactory(Blackboard parameters) {
-		super(parameters);
+	public FinalFactory(BasicFirm parent) {
+		super(parent);
 		this.finishedGoodsInventory = new FinalGoods();
 		this.rawMaterialsInventory=new IntermediateGoods();
 	}
@@ -167,13 +169,13 @@ public class FinalFactory extends AbstractFactory {
 	 * @return a HashMap.
 	 */
 	@Override
-	protected Map<String, Object> getDefaultParameters() {
-		final Map<String, Object> map2 = new HashMap<String, Object>();
-		map2.put(Labels.PARAM_FACTORY_MACHINES, 10);		
-		map2.put(Labels.PARAM_FACTORY_PROD_MIN, 100);		
-		map2.put(Labels.PARAM_FACTORY_PROD_MAX, 100);		
-		map2.put(Labels.PARAM_FACTORY_PRODUCTION_TIME, 4);
-		map2.put("coefficient", 100f);
+	protected Map<ExternalLabel, Object> getDefaultParameters() {
+		final Map<ExternalLabel, Object> map2 = new HashMap<ExternalLabel, Object>();
+		map2.put(ExternalLabel.PARAM_FACTORY_MACHINES, 10);		
+		map2.put(ExternalLabel.PARAM_FACTORY_PROD_MIN, 100);		
+		map2.put(ExternalLabel.PARAM_FACTORY_PROD_MAX, 100);		
+		map2.put(ExternalLabel.PARAM_FACTORY_PRODUCTION_TIME, 4);
+		map2.put(ExternalLabel.TECH_COEFF, 100f);
 		return map2;
 	}		
 
@@ -213,7 +215,7 @@ public class FinalFactory extends AbstractFactory {
 	@Override
 	protected Machine newMachine(int productivity, int productionTime) {
 		float coefficient=0;
-		coefficient = (Float)this.blackboard.get(Labels.TECH_COEFF);
+		coefficient = (Float)this.externalParams.get(ExternalLabel.TECH_COEFF);
 		return new FinalMachine(productivity, productionTime,coefficient);
 	}
 
@@ -221,9 +223,9 @@ public class FinalFactory extends AbstractFactory {
 	 * Takes the raw materials required for the production process.
 	 */
 	public void takeRawMaterials() {
-		final IntermediateGoods rawMaterials=(IntermediateGoods) this.blackboard.remove(Labels.RAW_MATERIALS);
+		final IntermediateGoods rawMaterials=(IntermediateGoods) this.blackboard.remove(InternalLabel.RAW_MATERIALS);
 		this.rawMaterialsInventory.add(rawMaterials);
-		this.blackboard.put(Labels.RAW_MATERIALS_VOLUME,this.rawMaterialsInventory.getVolume());
+		this.blackboard.put(InternalLabel.RAW_MATERIALS_VOLUME,this.rawMaterialsInventory.getVolume());
 	}
 
 }

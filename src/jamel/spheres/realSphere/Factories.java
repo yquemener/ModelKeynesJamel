@@ -26,7 +26,8 @@
 
 package jamel.spheres.realSphere;
 
-import jamel.agents.firms.Labels;
+import jamel.agents.firms.BasicFirm;
+import jamel.agents.firms.ExternalLabel;
 import jamel.agents.firms.ProductionType;
 import jamel.util.Blackboard;
 
@@ -40,8 +41,10 @@ public class Factories {
 	 * @param blackboard  the parameters of the new factory.
 	 * @return a new factory.
 	 */
-	static public Factory getNewFactory(Blackboard blackboard) {
-		return getNewFactory(blackboard,(ProductionType)blackboard.get(Labels.PRODUCTION));
+	static public Factory getNewFactory(BasicFirm parent) {
+		return getNewFactory(
+                        parent,
+                        (ProductionType)parent.externalParams.get(ExternalLabel.PRODUCTION));
 	}
 
 	/**
@@ -50,18 +53,23 @@ public class Factories {
 	 * @param sector the sector.
 	 * @return a new factory.
 	 */
-	static public Factory getNewFactory(Blackboard blackboard, ProductionType sector) {
+	static public Factory getNewFactory(BasicFirm parent, ProductionType sector) {
+      System.out.println("1");
+      System.out.println(" = "+sector);
 		switch (sector) {
 		case intermediateProduction:
-			return new IntermediateFactory(blackboard);
+            System.out.println("1a");
+			return new IntermediateFactory(parent);
 		case finalProduction:{
-			return new FinalFactory(blackboard);
+            System.out.println("1b");
+			return new FinalFactory(parent);
 		}
 		case integratedProduction:
-			return new IntegratedFactory(blackboard);
+            System.out.println("1c");
+			return new IntegratedFactory(parent);
 		default :
 			throw new RuntimeException("Error while creating new factory: unknown sector."); 
-		}			
+		}
 	}
 
 }

@@ -34,7 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import jamel.agents.firms.Labels;
+import jamel.agents.firms.BasicFirm;
+import jamel.agents.firms.InternalLabel;
+import jamel.agents.firms.ExternalLabel;
 import jamel.agents.roles.Worker;
 import jamel.util.Blackboard;
 import jamel.util.markets.EmploymentContract;
@@ -75,8 +77,14 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 	/** The volume of the production of the current period. */
 	private int productionVolume ;
 
-	/** The blackboard. */
-	final protected Blackboard blackboard;
+	/** The black board of the firm, used for internal communication between
+         *  managers.
+         */
+	final protected Blackboard<InternalLabel> blackboard;
+
+	/** The external repository of parameters. */
+	final protected Blackboard<ExternalLabel> externalParams;
+        
 
 	/** The inventory where the production of the firm is stored. */
 	protected Goods finishedGoodsInventory;
@@ -88,8 +96,9 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 	 * Creates a new factory.
 	 * @param blackBoard  the blackboard.
 	 */
-	public AbstractFactory(Blackboard blackBoard) {
-		this.blackboard = blackBoard;
+	public AbstractFactory(BasicFirm parent) {
+		this.blackboard = parent.blackboard;
+                this.externalParams = parent.externalParams;
 		setDefaultParameters();		
 		this.toolUp();
 	}
@@ -98,11 +107,11 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 	 * Adds some default parameters to blackboard.
 	 */
 	private void setDefaultParameters() {
-		final Map<String, Object> defaultParameters = this.getDefaultParameters();
-		for(Entry<String, Object> entry : defaultParameters.entrySet()) {
-			final String key = entry.getKey();
-			if (!this.blackboard.containsKey(key)) {
-				this.blackboard.put(key, entry.getValue());
+		final Map<ExternalLabel, Object> defaultParameters = this.getDefaultParameters();
+		for(Entry<ExternalLabel, Object> entry : defaultParameters.entrySet()) {
+			final ExternalLabel key = entry.getKey();
+			if (!this.externalParams.containsKey(key)) {
+				this.externalParams.put(key, entry.getValue());
 			}
 		}
 	}
@@ -161,10 +170,10 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 	 * Tools up the factory with new machines.
 	 */
 	private void toolUp() {
-		final int machines = (Integer) this.blackboard.get(Labels.PARAM_FACTORY_MACHINES);
-		final int productivityMin = (Integer) this.blackboard.get(Labels.PARAM_FACTORY_PROD_MIN);
-		final int productivitymax =  (Integer) this.blackboard.get(Labels.PARAM_FACTORY_PROD_MAX);
-		final int productionTime =  (Integer) this.blackboard.get(Labels.PARAM_FACTORY_PRODUCTION_TIME);
+		final int machines = (Integer) this.externalParams.get(ExternalLabel.PARAM_FACTORY_MACHINES);
+		final int productivityMin = (Integer) this.externalParams.get(ExternalLabel.PARAM_FACTORY_PROD_MIN);
+		final int productivitymax =  (Integer) this.externalParams.get(ExternalLabel.PARAM_FACTORY_PROD_MAX);
+		final int productionTime =  (Integer) this.externalParams.get(ExternalLabel.PARAM_FACTORY_PRODUCTION_TIME);
 		if (machines == 0) new RuntimeException("The number of machines can't be nul.");
 		if (machines == 1) {
 			machinery.add(newMachine((productivityMin+productivitymax)/2, productionTime));
@@ -184,14 +193,14 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 		for (Machine thisMachine : machinery) 
 			production += thisMachine.getProductivity();
 		this.maxProduction = production;
-		this.blackboard.put(Labels.PRODUCTION_MAX,this.maxProduction);
+		this.blackboard.put(InternalLabel.PRODUCTION_MAX,this.maxProduction);
 	}
 
 	/**
 	 * Returns a HashMap that contains the default parameters for this factory.
 	 * @return a HashMap.
 	 */
-	abstract protected Map<String, Object> getDefaultParameters();
+	abstract protected Map<ExternalLabel, Object> getDefaultParameters();
 	
 	/**
 	 * Adds a new stock of commodity to the current stock of product.<br>
@@ -243,12 +252,12 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 
 	@Override 
 	public void close() {
-		final Goods unsoldGoods = (Goods) this.blackboard.remove(Labels.PRODUCT_FOR_SALES);
+		final Goods unsoldGoods = (Goods) this.blackboard.remove(InternalLabel.PRODUCT_FOR_SALES);
 		if (unsoldGoods !=null)
 			this.finishedGoodsInventory.add(unsoldGoods);
-		this.blackboard.put(Labels.INVENTORY_FG_VALUE, this.finishedGoodsInventory.getValue());
-		this.blackboard.put(Labels.INVENTORY_FG_VOLUME, this.finishedGoodsInventory.getVolume());
-		this.blackboard.put(Labels.INVENTORY_UG_VALUE, this.getUnfinishedGoodsValue());
+		this.blackboard.put(InternalLabel.INVENTORY_FG_VALUE, this.finishedGoodsInventory.getValue());
+		this.blackboard.put(InternalLabel.INVENTORY_FG_VOLUME, this.finishedGoodsInventory.getVolume());
+		this.blackboard.put(InternalLabel.INVENTORY_UG_VALUE, this.getUnfinishedGoodsValue());
 	}
 	
 	/**
@@ -282,11 +291,11 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 		updateMaxProduction();
 		final float normalInventoryStockLevel = inventoryStockTarget *this.maxProduction;
 		final float currentInventoryStockLevel = this.finishedGoodsInventory.getVolume();
-		this.blackboard.put(Labels.INVENTORY_LEVEL_RATIO, currentInventoryStockLevel/normalInventoryStockLevel);
-		this.blackboard.put(Labels.UNIT_COST,this.finishedGoodsInventory.getUnitCost());
-		this.blackboard.put(Labels.PRODUCTION_LEVEL_MAX, this.getMaxLevelOfProduction());
-		this.blackboard.put(Labels.MACHINERY, this.machinery.size());
-		this.blackboard.put(Labels.RAW_MATERIALS_NEEDS, this.getRawMaterialsNeedVolume());
+		this.blackboard.put(InternalLabel.INVENTORY_LEVEL_RATIO, currentInventoryStockLevel/normalInventoryStockLevel);
+		this.blackboard.put(InternalLabel.UNIT_COST,this.finishedGoodsInventory.getUnitCost());
+		this.blackboard.put(InternalLabel.PRODUCTION_LEVEL_MAX, this.getMaxLevelOfProduction());
+		this.blackboard.put(InternalLabel.MACHINERY, this.machinery.size());
+		this.blackboard.put(InternalLabel.RAW_MATERIALS_NEEDS, this.getRawMaterialsNeedVolume());
 	}
 
 	/**
@@ -296,7 +305,7 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 	@Override
 	public void production() {
 		@SuppressWarnings("unchecked")
-		final List<EmploymentContract> payroll = (List<EmploymentContract>) this.blackboard.remove(Labels.PAYROLL);
+		final List<EmploymentContract> payroll = (List<EmploymentContract>) this.blackboard.remove(InternalLabel.PAYROLL);
 		Collections.sort(this.machinery,MACHINE_COMPARATOR);
 		Iterator<Machine> machineIterator=this.machinery.iterator();
 		for (EmploymentContract contract : payroll) {
@@ -305,9 +314,9 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 			Machine machine = machineIterator.next();
 			machine.work(worker,wage);
 		}
-		this.blackboard.put(Labels.PRODUCT_FOR_SALES, this.getProductForSale());
-		this.blackboard.put(Labels.PRODUCTION_VALUE, this.productionValue);
-		this.blackboard.put(Labels.PRODUCTION_VOLUME, this.productionVolume);
+		this.blackboard.put(InternalLabel.PRODUCT_FOR_SALES, this.getProductForSale());
+		this.blackboard.put(InternalLabel.PRODUCTION_VALUE, this.productionValue);
+		this.blackboard.put(InternalLabel.PRODUCTION_VOLUME, this.productionVolume);
 	}
 
 	/**

@@ -10,7 +10,26 @@ Réécriture du système de scénario
 
 Une classe Scenario est donc créée, qui a pour mission de lire les scénario et d'effectuer les modifications de paramètres exogènes. Elle reste tout à fait extérieure à la simulation et est instanciée par Analyst. Elle prend une classe Circuit en argument. Cette dernière ignore l'existence de Scenario.
 
+(2013-04-28) Problème : l'ajout de nouvelles firmes après des banqueroutes utilise le scénario de FirmsSector. Il faut un moyen de reproduire ce comportement sans utiliser de scénario. Plusieurs possibilités :
+
+- considérer la création comme exogène et réaliser cela au niveau au dessus de Circuit. Dans ce cas il faut créer un mécanisme pour sortir les infos des sociétés en banqueroute jusqu'à ce niveau là, car les société sont recrées à l'identique.
+    * contre : plus de travail
+    * pour : permet de sortir une anomalie de la simulation : ses éléments ne doivent pas dépendre de la date courante.
+    * pour : donne une bonne raison de mettre en place une sortie complète des infos jusqu'à l'extérieur du circuit.
+
+- considérer qu'il s'agit d'une tâche de FirmsSector et réimplementer une forme de scenario "light".
+    * pour : plus rapide à faire
+    * contre : Structure nouvelle assez bancale à créer.
+
+- modifier le comportement de la simulation pour que la création de firmes ne dépende pas directement des banqueroutes et/ou pour que les firmes nouvelles crées ne soient pas identiques
+    * pour : solution théorique plus satisfaisante, permet de rendre la simu indépendante de la date courante
+    * contre : nécessite de mettre les réferences de test à la poubelle
+
 Suppression de la classe Blackboard
 -----------------------------------
 
 (2013-04-27) Blackboard est en réalité un HashMap qui dispose d'une subtilité : ses éléments peuvent expirer dans le temps. Cependant, cette propriété ne semble pas utilisée du tout. Si les tests le confirment je remplacerai Blackboard par une simple HashMap.
+
+(+1h) Bon, en fait seulement deux types de validité existent : "juste cette période" et "permanente". Je pense donc créer un blackboard (en réalité un hashmap) effacé à chaque tour, et par ailleurs une table de paramètres exogènes.
+
+

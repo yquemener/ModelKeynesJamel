@@ -27,7 +27,9 @@
 package jamel.agents.firms.managers;
 
 import jamel.JamelObject;
-import jamel.agents.firms.Labels;
+import jamel.agents.firms.InternalLabel;
+import jamel.agents.firms.ExternalLabel;
+import jamel.agents.firms.BasicFirm;
 import jamel.util.Blackboard;
 
 /**
@@ -41,15 +43,21 @@ public class ProductionManager extends JamelObject{
 	/** The current (targeted) capacity utilization rate. */
 	protected float utilizationRateTargeted=75+getRandom().nextInt(25);
 
-	/** The black board. */
-	final private Blackboard blackBoard;
+	/** The black board of the firm, used for internal communication between
+         *  managers.
+         */
+	final private Blackboard<InternalLabel> blackboard;
+
+	/** The external repository of parameters. */
+	final private Blackboard<ExternalLabel> externalParams;
 
 	/**
 	 * Creates a new manager.
 	 * @param blackboard2  the black board.
 	 */
-	public ProductionManager(Blackboard blackboard2) {
-		this.blackBoard = blackboard2;
+	public ProductionManager(BasicFirm parent) {
+		this.blackboard = parent.blackboard;
+                this.externalParams = parent.externalParams;
 	}
 
 	/**
@@ -58,7 +66,7 @@ public class ProductionManager extends JamelObject{
 	public void updateProductionLevel() {
 		final float alpha1 = getRandom().nextFloat();
 		final float alpha2 = getRandom().nextFloat();
-		final float inventoryRatio = (Float)this.blackBoard.get(Labels.INVENTORY_LEVEL_RATIO);
+		final float inventoryRatio = (Float)this.blackboard.get(InternalLabel.INVENTORY_LEVEL_RATIO);
 		if (inventoryRatio<1-alpha1*alpha2) {// Low level
 			final float delta = (alpha1*this.utilizationRateFlexibility);
 			this.utilizationRateTargeted += delta;
@@ -73,9 +81,9 @@ public class ProductionManager extends JamelObject{
 				this.utilizationRateTargeted = 0;
 			}
 		}
-		final float maxUtilization = (Float) this.blackBoard.get(Labels.PRODUCTION_LEVEL_MAX);
+		final float maxUtilization = (Float) this.blackboard.get(InternalLabel.PRODUCTION_LEVEL_MAX);
 		final float rectifiedTarget = Math.min(this.utilizationRateTargeted, maxUtilization);
-		this.blackBoard.put(Labels.PRODUCTION_LEVEL, rectifiedTarget);
+		this.blackboard.put(InternalLabel.PRODUCTION_LEVEL, rectifiedTarget);
 	}
 
 }

@@ -31,12 +31,20 @@ import java.util.Map;
 
 import jamel.agents.roles.Employer;
 import jamel.agents.roles.Provider;
+import jamel.agents.firms.ExternalLabel;
+import jamel.util.Blackboard;
 
 /**
  * An interface for the firms.
  */
 public interface Firm extends Employer, Provider {
 
+  	/** Returns the current values of the exogeneous params. */
+	Blackboard<ExternalLabel> getExternalParams();
+    
+    /** Sets a new value for an exogeneous param */
+    void setParam(ExternalLabel label, Object value);
+  
 	/**
 	 * Buys the raw materials.
 	 */
@@ -55,18 +63,6 @@ public interface Firm extends Employer, Provider {
 	FirmDataset getData();
 
 	/**
-	 * Returns a map that contains the parameters.
-	 * @return a map that contains the parameters.
-	 */
-	Map<String, Object> getParameters();
-
-	/**
-	 * Returns a string that contains parameters for the creation of a new firm.
-	 * @return a string.
-	 */
-	String getParametersString();
-
-	/**
 	 * Kills the firm.
 	 */
 	void kill();
@@ -74,9 +70,8 @@ public interface Firm extends Employer, Provider {
 	/** 
 	 * Opens the household for a new period.<br>
 	 * Initializes data and executes events.
-	 * @param eList - a list of strings that describes the events for the current period. 
 	 */
-	void open(LinkedList<String> eList);
+	void open();
 
 	/**
 	 * Pays the dividend.

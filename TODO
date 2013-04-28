@@ -1,4 +1,6 @@
-* Remove progress dialog in analyst
+V Remove progress dialog in analyst
 * Add text output for Analyst
 * Use methods reflections to get truly parametrizable scenarios
 * Put a probe mechanism to generalize ploting
+* Create a base class for managers inside firms
+* Remove unused Parser object

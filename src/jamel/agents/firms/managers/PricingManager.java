@@ -27,7 +27,9 @@
 package jamel.agents.firms.managers;
 
 import jamel.JamelObject;
-import jamel.agents.firms.Labels;
+import jamel.agents.firms.BasicFirm;
+import jamel.agents.firms.InternalLabel;
+import jamel.agents.firms.ExternalLabel;
 import jamel.util.Blackboard;
 
 /**
@@ -35,8 +37,14 @@ import jamel.util.Blackboard;
  */
 public class PricingManager extends JamelObject {
 
-	/** The black board. */
-	protected final Blackboard blackBoard;
+	/** The black board of the firm, used for internal communication between
+         *  managers.
+         */
+	final private Blackboard<InternalLabel> blackboard;
+
+	/** The external repository of parameters. */
+	final private Blackboard<ExternalLabel> externalParams;
+
 
 	/** The current unit price.*/
 	protected double currentPrice;
@@ -45,17 +53,18 @@ public class PricingManager extends JamelObject {
 	 * Creates a new pricing manager.
 	 * @param blackboard  the blackboard.
 	 */
-	public PricingManager(Blackboard blackboard) {
-		this.blackBoard = blackboard;
+	public PricingManager(BasicFirm parent) {
+		this.blackboard = parent.blackboard;
+                this.externalParams = parent.externalParams;
 	}
 
 	/**
 	 * Updates the unit price.
 	 */
 	public void updatePrice() {
-		final Float priceFlexibility = (Float)this.blackBoard.get(Labels.PRICE_FLEXIBILITY);
-		final Float inventoryRatio = (Float)this.blackBoard.get(Labels.INVENTORY_LEVEL_RATIO);
-		final Double unitCost = (Double)this.blackBoard.get(Labels.UNIT_COST);
+		final Float priceFlexibility = (Float)this.externalParams.get(ExternalLabel.PRICE_FLEXIBILITY);
+		final Float inventoryRatio = (Float)this.blackboard.get(InternalLabel.INVENTORY_LEVEL_RATIO);
+		final Double unitCost = (Double)this.blackboard.get(InternalLabel.UNIT_COST);
 		if (this.currentPrice==0) {
 			this.currentPrice = (1.+getRandom().nextFloat()/2.)*unitCost;
 			if ( Double.isNaN(currentPrice) )
@@ -72,7 +81,7 @@ public class PricingManager extends JamelObject {
 				if (this.currentPrice<1) this.currentPrice = 1;
 			}
 		}
-		this.blackBoard.put(Labels.PRICE, this.currentPrice);
+		this.blackboard.put(InternalLabel.PRICE, this.currentPrice);
 	}
 
 }

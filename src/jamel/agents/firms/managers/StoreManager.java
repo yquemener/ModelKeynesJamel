@@ -26,7 +26,9 @@
 
 package jamel.agents.firms.managers;
 
-import jamel.agents.firms.Labels;
+import jamel.agents.firms.InternalLabel;
+import jamel.agents.firms.ExternalLabel;
+import jamel.agents.firms.BasicFirm;
 import jamel.agents.roles.Provider;
 import jamel.spheres.monetarySphere.Account;
 import jamel.spheres.monetarySphere.Check;
@@ -42,8 +44,13 @@ public class StoreManager {
 	/** The bank account. */
 	final private Account account;
 
-	/** The blackboard. */
-	private Blackboard blackboard;
+	/** The black board of the firm, used for internal communication between
+         *  managers.
+         */
+	final private Blackboard<InternalLabel> blackboard;
+
+	/** The external repository of parameters. */
+	final private Blackboard<ExternalLabel> externalParams;
 
 	/** The inventory. */
 	private Goods inventory;
@@ -69,10 +76,11 @@ public class StoreManager {
 	 * @param aAccount  the bank account of the firm.
 	 * @param blackboard  the blackboard. 
 	 */
-	public StoreManager(Provider aProvider, Account aAccount, Blackboard blackboard) {
+	public StoreManager(Provider aProvider, Account aAccount, BasicFirm parent) {
 		this.provider = aProvider;
 		this.account = aAccount;
-		this.blackboard = blackboard;
+		this.blackboard = parent.blackboard;
+                this.externalParams = parent.externalParams;
 	}
 
 	/**
@@ -92,21 +100,21 @@ public class StoreManager {
 	 * Creates a new offer and posts it on the goods market.
 	 */
 	public void offerCommodities() {
-		double aPrice = (Double)this.blackboard.get(Labels.PRICE);
+		double aPrice = (Double)this.blackboard.get(InternalLabel.PRICE);
 		if (this.inventory!=null) 
 			throw new RuntimeException("The inventory is not null.");
 		this.costOfGoodsSold=0l;
 		this.salesValue=0l;
 		this.salesVolume=0;
-		this.blackboard.put(Labels.COST_OF_GOODS_SOLD, 0l);
-		this.blackboard.put(Labels.SALES_VALUE, 0l);
-		this.blackboard.put(Labels.SALES_VOLUME, 0);
-		this.blackboard.put(Labels.GROSS_PROFIT, 0L);
-		final Goods merchandise = (Goods) this.blackboard.get(Labels.PRODUCT_FOR_SALES);
+		this.blackboard.put(InternalLabel.COST_OF_GOODS_SOLD, 0l);
+		this.blackboard.put(InternalLabel.SALES_VALUE, 0l);
+		this.blackboard.put(InternalLabel.SALES_VOLUME, 0);
+		this.blackboard.put(InternalLabel.GROSS_PROFIT, 0L);
+		final Goods merchandise = (Goods) this.blackboard.get(InternalLabel.PRODUCT_FOR_SALES);
 		if ((aPrice>0)&&(merchandise!=null)) {
 			this.inventory = merchandise ;
 			this.offer = new GoodsOffer(provider,inventory.getVolume(),aPrice) ;
-			this.blackboard.put(Labels.OFFER_OF_GOODS, this.offer);
+			this.blackboard.put(InternalLabel.OFFER_OF_GOODS, this.offer);
 		}
 	}
 
@@ -142,13 +150,13 @@ public class StoreManager {
 		this.account.deposit( check ) ;
 		final Goods sale = this.inventory.newGoods(volume);
 		this.costOfGoodsSold += sale.getValue();
-		this.blackboard.put(Labels.COST_OF_GOODS_SOLD, this.costOfGoodsSold);
+		this.blackboard.put(InternalLabel.COST_OF_GOODS_SOLD, this.costOfGoodsSold);
 		sale.setValue(check.getAmount());
 		this.salesValue += sale.getValue();
-		this.blackboard.put(Labels.SALES_VALUE, this.salesValue);
-		this.blackboard.put(Labels.GROSS_PROFIT, this.salesValue-this.costOfGoodsSold);
+		this.blackboard.put(InternalLabel.SALES_VALUE, this.salesValue);
+		this.blackboard.put(InternalLabel.GROSS_PROFIT, this.salesValue-this.costOfGoodsSold);
 		this.salesVolume += sale.getVolume();
-		this.blackboard.put(Labels.SALES_VOLUME, this.salesVolume);
+		this.blackboard.put(InternalLabel.SALES_VOLUME, this.salesVolume);
 		this.offer.subtract(volume) ;// corrige l'offre ( il y a moins de stocks disponibles )
 		if (offer.getVolume()==0)
 			this.offer = null;

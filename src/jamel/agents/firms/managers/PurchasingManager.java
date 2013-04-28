@@ -27,7 +27,9 @@
 package jamel.agents.firms.managers;
 
 import jamel.Circuit;
-import jamel.agents.firms.Labels;
+import jamel.agents.firms.InternalLabel;
+import jamel.agents.firms.ExternalLabel;
+import jamel.agents.firms.BasicFirm;
 import jamel.agents.roles.Provider;
 import jamel.spheres.monetarySphere.Account;
 import jamel.spheres.realSphere.IntermediateGoods;
@@ -77,9 +79,15 @@ public class PurchasingManager {
 	/** The current account of the firm. */
 	final private Account account;
 
-	/** The blackboard. */
-	final private Blackboard blackboard;
 
+	/** The black board of the firm, used for internal communication between
+         *  managers.
+         */
+	final private Blackboard<InternalLabel> blackboard;
+
+	/** The external repository of parameters. */
+	final private Blackboard<ExternalLabel> externalParams;
+        
 	/** The initial budget of the purchasing manager for the current period. */
 	private Long maxBudget;
 
@@ -97,10 +105,11 @@ public class PurchasingManager {
 	 * @param aAccount  the current account of the firm.
 	 * @param blackboard2  the blackBoard. 
 	 */
-	public PurchasingManager(Account aAccount, Blackboard blackboard2) {
+	public PurchasingManager(Account aAccount, BasicFirm parent) {
 		this.account = aAccount;
-		this.providersList=new LinkedList<Provider>();
-		this.blackboard=blackboard2;
+		this.providersList = new LinkedList<Provider>();
+		this.blackboard = parent.blackboard;
+                this.externalParams = parent.externalParams;
 	}
 
 	/**
@@ -217,7 +226,7 @@ public class PurchasingManager {
 			
 		}
 		
-		this.blackboard.put(Labels.RAW_MATERIALS, totalPurchase);
+		this.blackboard.put(InternalLabel.RAW_MATERIALS, totalPurchase);
 		
 	}
 
@@ -225,9 +234,9 @@ public class PurchasingManager {
 	 * 
 	 */
 	public void computeBudget() {
-		this.maxVolume = (Integer)this.blackboard.get(Labels.RAW_MATERIALS_NEEDS);
+		this.maxVolume = (Integer)this.blackboard.get(InternalLabel.RAW_MATERIALS_NEEDS);
 		this.maxBudget = (long) (this.maxVolume*getRawMaterialsPrice()*1.0);
-		this.blackboard.put(Labels.RAW_MATERIALS_BUDGET, this.maxBudget);
+		this.blackboard.put(InternalLabel.RAW_MATERIALS_BUDGET, this.maxBudget);
 	}
 
 	/**

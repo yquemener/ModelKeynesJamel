@@ -38,6 +38,7 @@ import org.jfree.date.MonthConstants;
 import jamel.agents.firms.Firm;
 import jamel.agents.firms.FirmsSector;
 import jamel.agents.firms.ProductionType;
+import jamel.agents.firms.ExternalLabel;
 import jamel.agents.households.HouseholdsSector;
 import jamel.agents.roles.AccountHolder;
 import jamel.agents.roles.CapitalOwner;
@@ -46,6 +47,7 @@ import jamel.agents.roles.Provider;
 import jamel.spheres.monetarySphere.Account;
 import jamel.spheres.monetarySphere.Bank;
 import jamel.util.BalanceSheetMatrix;
+import jamel.util.Blackboard;
 import jamel.util.data.CrossSectionSeries;
 import jamel.util.data.PeriodDataset;
 import jamel.util.data.TimeseriesCollection;
@@ -62,6 +64,11 @@ public class Circuit extends JamelObject {
         
         /** The scenario. */
         private Scenario scenario;
+        
+        /** Default parameters for new firms. When a new firm is created, these
+         *  parameters are copied into firm.externalParams.
+         */
+        public final Blackboard<ExternalLabel> firmsParams;
 
 	/** The line separator. */
 	final private static String rc = System.getProperty("line.separator");
@@ -273,6 +280,16 @@ public class Circuit extends JamelObject {
 		this.bank = new Bank();
 		this.households = new HouseholdsSector(getParametersList(aScenario,"Households","\\."));
 		this.firms = new FirmsSector(getParametersList(aScenario,"Firms","\\."));
+        this.firmsParams = new Blackboard<ExternalLabel>();
+        this.firmsParams.put(ExternalLabel.PARAM_FACTORY_MACHINES, 10);		
+		this.firmsParams.put(ExternalLabel.PARAM_FACTORY_PROD_MIN, 100);		
+		this.firmsParams.put(ExternalLabel.PARAM_FACTORY_PROD_MAX, 100);		
+		this.firmsParams.put(ExternalLabel.PARAM_FACTORY_PRODUCTION_TIME, 4);
+        this.firmsParams.put(ExternalLabel.PRICE_FLEXIBILITY, 0.15f);
+        this.firmsParams.put(ExternalLabel.PRODUCTION, ProductionType.integratedProduction);
+        this.firmsParams.put(ExternalLabel.WAGE_DOWN_FLEX, 0.02);
+        this.firmsParams.put(ExternalLabel.WAGE_UP_FLEX, 0.03);
+        
 	}
 
 	/**
