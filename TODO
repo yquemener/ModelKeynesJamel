@@ -3,5 +3,5 @@ V Remove progress dialog in analyst
 * Use methods reflections to get truly parametrizable scenarios
 * Put a probe mechanism to generalize ploting
 * Create a base class for managers inside firms
-* Remove unused Parser object
+V Remove unused Parser object
 * Make a doc/list of all objects (and their relationships) of the realSphere (machines, factories, inventories)

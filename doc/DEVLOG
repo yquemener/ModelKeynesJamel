@@ -32,4 +32,4 @@ Suppression de la classe Blackboard
 
 (+1h) Bon, en fait seulement deux types de validité existent : "juste cette période" et "permanente". Je pense donc créer un blackboard (en réalité un hashmap) effacé à chaque tour, et par ailleurs une table de paramètres exogènes.
 
-
+(2013-04-28) Je pense avoir fini l'éclatement de Blackboard en données externes permanentes et données internes temporaires.
