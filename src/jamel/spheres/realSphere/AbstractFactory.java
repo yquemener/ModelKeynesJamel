@@ -33,12 +33,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.HashMap;
 
 import jamel.agents.firms.BasicFirm;
 import jamel.agents.firms.InternalLabel;
 import jamel.agents.firms.ExternalLabel;
 import jamel.agents.roles.Worker;
-import jamel.util.Blackboard;
 import jamel.util.markets.EmploymentContract;
 
 /**
@@ -80,10 +80,10 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 	/** The black board of the firm, used for internal communication between
          *  managers.
          */
-	final protected Blackboard<InternalLabel> blackboard;
+	final protected HashMap<InternalLabel,Object> blackboard;
 
 	/** The external repository of parameters. */
-	final protected Blackboard<ExternalLabel> externalParams;
+	final protected HashMap<ExternalLabel,Object> externalParams;
         
 
 	/** The inventory where the production of the firm is stored. */

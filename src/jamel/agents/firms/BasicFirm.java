@@ -48,7 +48,6 @@ import jamel.spheres.realSphere.Factories;
 import jamel.spheres.realSphere.Factory;
 import jamel.spheres.realSphere.FinalFactory;
 import jamel.spheres.realSphere.Goods;
-import jamel.util.Blackboard;
 import jamel.util.markets.GoodsOffer;
 import jamel.util.markets.JobOffer;
 
@@ -82,10 +81,10 @@ public class BasicFirm extends JamelObject implements Firm {
 	private final StoreManager storeManager ;
 
 	/** A map that contains the information shared with the managers. */
-	public final Blackboard<InternalLabel> blackboard = new Blackboard<InternalLabel>();
+	public final HashMap<InternalLabel, Object> blackboard = new HashMap<InternalLabel, Object>();
 
   	/** The external repository of parameters. */
-	public final Blackboard<ExternalLabel> externalParams;
+	public final HashMap<ExternalLabel, Object> externalParams;
 
 	/** The data. */
 	protected FirmDataset data;
@@ -114,7 +113,7 @@ public class BasicFirm extends JamelObject implements Firm {
 	public BasicFirm( 
 			String aName, 
 			CapitalOwner owner,
-            Blackboard<ExternalLabel> eParams) {
+            HashMap<ExternalLabel, Object> eParams) {
         this.init();
 		this.name = aName ;
 		this.birthPeriod = getCurrentPeriod().getValue();
@@ -412,7 +411,7 @@ public class BasicFirm extends JamelObject implements Firm {
 	public void open() {
 		if (bankrupt)
 			throw new RuntimeException("Bankrupted.");
-		this.blackboard.cleanUp();
+		this.blackboard.clear();
 		this.data = new FirmDataset();
 		if (this.purchasingManager!=null) this.purchasingManager.open();
 		this.workforceManager.open();
@@ -494,7 +493,7 @@ public class BasicFirm extends JamelObject implements Firm {
     }
     
   @Override
-    public Blackboard<ExternalLabel> getExternalParams()
+    public HashMap<ExternalLabel, Object> getExternalParams()
     {
       return this.externalParams;
     }

@@ -30,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
@@ -47,7 +48,6 @@ import jamel.agents.roles.Provider;
 import jamel.spheres.monetarySphere.Account;
 import jamel.spheres.monetarySphere.Bank;
 import jamel.util.BalanceSheetMatrix;
-import jamel.util.Blackboard;
 import jamel.util.data.CrossSectionSeries;
 import jamel.util.data.PeriodDataset;
 import jamel.util.data.TimeseriesCollection;
@@ -68,7 +68,7 @@ public class Circuit extends JamelObject {
         /** Default parameters for new firms. When a new firm is created, these
          *  parameters are copied into firm.externalParams.
          */
-        public final Blackboard<ExternalLabel> firmsParams;
+        public final HashMap<ExternalLabel,Object> firmsParams;
 
 	/** The line separator. */
 	final private static String rc = System.getProperty("line.separator");
@@ -279,7 +279,7 @@ public class Circuit extends JamelObject {
 		this.timesSeriesCollection = new TimeseriesCollection();
 		this.bank = new Bank();
 		this.households = new HouseholdsSector(getParametersList(aScenario,"Households","\\."));
-        this.firmsParams = new Blackboard<ExternalLabel>();
+        this.firmsParams = new HashMap<ExternalLabel,Object>();
         this.firmsParams.put(ExternalLabel.PARAM_FACTORY_MACHINES, 10);		
 		this.firmsParams.put(ExternalLabel.PARAM_FACTORY_PROD_MIN, 100);		
 		this.firmsParams.put(ExternalLabel.PARAM_FACTORY_PROD_MAX, 100);		

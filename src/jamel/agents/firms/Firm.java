@@ -28,11 +28,11 @@ package jamel.agents.firms;
 
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.HashMap;
 
 import jamel.agents.roles.Employer;
 import jamel.agents.roles.Provider;
 import jamel.agents.firms.ExternalLabel;
-import jamel.util.Blackboard;
 
 /**
  * An interface for the firms.
@@ -40,7 +40,7 @@ import jamel.util.Blackboard;
 public interface Firm extends Employer, Provider {
 
   	/** Returns the current values of the exogeneous params. */
-	Blackboard<ExternalLabel> getExternalParams();
+	HashMap<ExternalLabel,Object> getExternalParams();
     
     /** Sets a new value for an exogeneous param */
     void setParam(ExternalLabel label, Object value);

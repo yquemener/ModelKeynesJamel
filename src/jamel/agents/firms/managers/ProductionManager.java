@@ -30,7 +30,7 @@ import jamel.JamelObject;
 import jamel.agents.firms.InternalLabel;
 import jamel.agents.firms.ExternalLabel;
 import jamel.agents.firms.BasicFirm;
-import jamel.util.Blackboard;
+import java.util.HashMap;
 
 /**
  * A basic production manager.
@@ -46,10 +46,10 @@ public class ProductionManager extends JamelObject{
 	/** The black board of the firm, used for internal communication between
          *  managers.
          */
-	final private Blackboard<InternalLabel> blackboard;
+	final private HashMap<InternalLabel,Object> blackboard;
 
 	/** The external repository of parameters. */
-	final private Blackboard<ExternalLabel> externalParams;
+	final private HashMap<ExternalLabel,Object> externalParams;
 
 	/**
 	 * Creates a new manager.

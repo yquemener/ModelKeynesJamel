@@ -33,10 +33,10 @@ import jamel.agents.firms.BasicFirm;
 import jamel.agents.roles.Provider;
 import jamel.spheres.monetarySphere.Account;
 import jamel.spheres.realSphere.IntermediateGoods;
-import jamel.util.Blackboard;
 import jamel.util.markets.GoodsOffer;
 import jamel.util.markets.ProviderComparator;
 
+import java.util.HashMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -83,10 +83,10 @@ public class PurchasingManager {
 	/** The black board of the firm, used for internal communication between
          *  managers.
          */
-	final private Blackboard<InternalLabel> blackboard;
+	final private HashMap<InternalLabel,Object> blackboard;
 
 	/** The external repository of parameters. */
-	final private Blackboard<ExternalLabel> externalParams;
+	final private HashMap<ExternalLabel,Object> externalParams;
         
 	/** The initial budget of the purchasing manager for the current period. */
 	private Long maxBudget;

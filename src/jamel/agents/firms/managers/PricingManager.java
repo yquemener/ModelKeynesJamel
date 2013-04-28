@@ -26,11 +26,12 @@
 
 package jamel.agents.firms.managers;
 
+import java.util.HashMap;
 import jamel.JamelObject;
 import jamel.agents.firms.BasicFirm;
 import jamel.agents.firms.InternalLabel;
 import jamel.agents.firms.ExternalLabel;
-import jamel.util.Blackboard;
+
 
 /**
  * A basic pricing manager.
@@ -40,10 +41,10 @@ public class PricingManager extends JamelObject {
 	/** The black board of the firm, used for internal communication between
          *  managers.
          */
-	final private Blackboard<InternalLabel> blackboard;
+	final private HashMap<InternalLabel,Object> blackboard;
 
 	/** The external repository of parameters. */
-	final private Blackboard<ExternalLabel> externalParams;
+	final private HashMap<ExternalLabel,Object> externalParams;
 
 
 	/** The current unit price.*/

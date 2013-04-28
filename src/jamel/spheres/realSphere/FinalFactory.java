@@ -30,7 +30,6 @@ package jamel.spheres.realSphere;
 import jamel.agents.firms.BasicFirm;
 import jamel.agents.firms.ExternalLabel;
 import jamel.agents.firms.InternalLabel;
-import jamel.util.Blackboard;
 
 import java.util.HashMap;
 import java.util.Map;

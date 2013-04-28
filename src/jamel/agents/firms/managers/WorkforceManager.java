@@ -35,13 +35,13 @@ import jamel.agents.firms.ExternalLabel;
 import jamel.agents.roles.Worker;
 import jamel.spheres.monetarySphere.Account;
 import jamel.spheres.monetarySphere.Check;
-import jamel.util.Blackboard;
 import jamel.util.markets.EmploymentContract;
 import jamel.util.markets.JobOffer;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.HashMap;
 
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesDataItem;
@@ -78,10 +78,10 @@ public class WorkforceManager extends JamelObject {
 	/** The black board of the firm, used for internal communication between
          *  managers.
          */
-	final private Blackboard<InternalLabel> blackboard;
+	final private HashMap<InternalLabel,Object> blackboard;
 
 	/** The external repository of parameters. */
-	final private Blackboard<ExternalLabel> externalParams;
+	final private HashMap<ExternalLabel,Object> externalParams;
 
 	/** The number of workers hired in the current period. */
 	private Integer effectiveHiring ; 
