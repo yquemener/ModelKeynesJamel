@@ -113,13 +113,13 @@ public class BasicFirm extends JamelObject implements Firm {
 	 */
 	public BasicFirm( 
 			String aName, 
-			CapitalOwner owner) {
+			CapitalOwner owner,
+            Blackboard<ExternalLabel> eParams) {
         this.init();
 		this.name = aName ;
 		this.birthPeriod = getCurrentPeriod().getValue();
   		this.account = Circuit.getNewAccount(this);
-        this.externalParams = (Blackboard<ExternalLabel>)
-                (Circuit.getCircuit().firmsParams.clone());
+        this.externalParams = eParams;
   		this.owner = owner ;
   		this.factory = getNewFactory();
   		this.purchasingManager = getNewPurchasingManager();

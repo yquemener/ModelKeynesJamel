@@ -31,6 +31,7 @@ import jamel.JamelObject;
 import jamel.agents.roles.CapitalOwner;
 import jamel.agents.roles.Employer;
 import jamel.agents.roles.Provider;
+import jamel.util.Blackboard;
 import jamel.util.data.PeriodDataset;
 
 import java.io.File;
@@ -143,29 +144,44 @@ public class FirmsSector extends JamelObject {
 			final CapitalOwner owner = Circuit.getRandomCapitalOwner();
 			try {
 				final String name = "Company "+countFirms;
-                System.out.println(""+Class.forName(className,false,ClassLoader.getSystemClassLoader()).getConstructor(String.class,CapitalOwner.class));
-				final Firm newFirm = (Firm) Class.forName(className,false,ClassLoader.getSystemClassLoader())
-                        .getConstructor(String.class,CapitalOwner.class).newInstance(name,owner);
+                Blackboard<ExternalLabel> eParams = 
+                        (Blackboard<ExternalLabel>)Circuit.getCircuit().firmsParams.clone();
                 for(String label:parametersMap.keySet())
                 {
                   Object o;
                   String s = parametersMap.get(label);
-                  try{ o = Float.parseFloat(s);}
-                  catch(NumberFormatException e) {
+                  if(label.equals("production"))
+                  {
+                    if(s.equals("intermediateProduction"))
+                        o = ProductionType.intermediateProduction;
+                    else if(s.equals("finalProduction"))
+                        o = ProductionType.finalProduction;
+                    else if(s.equals("integratedProduction"))
+                        o = ProductionType.integratedProduction;
+                    else
+                      throw new IllegalArgumentException();
+                  }
+                  else
+                  {
                     try{ o = Integer.parseInt(s);}
-                    catch(NumberFormatException e2) {
-                      o = s;
-                    }}
-                  newFirm.setParam(ExternalLabel.fromString(label), o);
+                    catch(NumberFormatException e) {
+                      try{ o = Float.parseFloat(s);}
+                      catch(NumberFormatException e2) {
+                        o = s;
+                      }}
+                  }
+                  eParams.put(ExternalLabel.fromString(label), o);
                 }
+				final Firm newFirm = (Firm) Class.forName(className,false,ClassLoader.getSystemClassLoader())
+                        .getConstructor(String.class,CapitalOwner.class,Blackboard.class).newInstance(name,owner,eParams);
                 
 				firmsList.add(newFirm) ;
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 				throw new RuntimeException("Firm creation failure"); 
-			} catch (IllegalArgumentException e) {
+/*			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
-				throw new RuntimeException("Firm creation failure"); 
+				throw new RuntimeException("Firm creation failure"); */
 			} catch (SecurityException e) {
 				e.printStackTrace();
 				throw new RuntimeException("Firm creation failure"); 

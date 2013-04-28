@@ -279,7 +279,6 @@ public class Circuit extends JamelObject {
 		this.timesSeriesCollection = new TimeseriesCollection();
 		this.bank = new Bank();
 		this.households = new HouseholdsSector(getParametersList(aScenario,"Households","\\."));
-		this.firms = new FirmsSector(getParametersList(aScenario,"Firms","\\."));
         this.firmsParams = new Blackboard<ExternalLabel>();
         this.firmsParams.put(ExternalLabel.PARAM_FACTORY_MACHINES, 10);		
 		this.firmsParams.put(ExternalLabel.PARAM_FACTORY_PROD_MIN, 100);		
@@ -289,6 +288,7 @@ public class Circuit extends JamelObject {
         this.firmsParams.put(ExternalLabel.PRODUCTION, ProductionType.integratedProduction);
         this.firmsParams.put(ExternalLabel.WAGE_DOWN_FLEX, 0.02);
         this.firmsParams.put(ExternalLabel.WAGE_UP_FLEX, 0.03);
+        this.firms = new FirmsSector(getParametersList(aScenario,"Firms","\\."));
         
 	}
 

@@ -54,18 +54,13 @@ public class Factories {
 	 * @return a new factory.
 	 */
 	static public Factory getNewFactory(BasicFirm parent, ProductionType sector) {
-      System.out.println("1");
-      System.out.println(" = "+sector);
 		switch (sector) {
 		case intermediateProduction:
-            System.out.println("1a");
 			return new IntermediateFactory(parent);
 		case finalProduction:{
-            System.out.println("1b");
 			return new FinalFactory(parent);
 		}
 		case integratedProduction:
-            System.out.println("1c");
 			return new IntegratedFactory(parent);
 		default :
 			throw new RuntimeException("Error while creating new factory: unknown sector."); 

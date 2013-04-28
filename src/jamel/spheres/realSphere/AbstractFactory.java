@@ -169,11 +169,12 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 	/**
 	 * Tools up the factory with new machines.
 	 */
-	private void toolUp() {
+	public void toolUp() {
 		final int machines = (Integer) this.externalParams.get(ExternalLabel.PARAM_FACTORY_MACHINES);
 		final int productivityMin = (Integer) this.externalParams.get(ExternalLabel.PARAM_FACTORY_PROD_MIN);
 		final int productivitymax =  (Integer) this.externalParams.get(ExternalLabel.PARAM_FACTORY_PROD_MAX);
 		final int productionTime =  (Integer) this.externalParams.get(ExternalLabel.PARAM_FACTORY_PRODUCTION_TIME);
+        machinery.clear();
 		if (machines == 0) new RuntimeException("The number of machines can't be nul.");
 		if (machines == 1) {
 			machinery.add(newMachine((productivityMin+productivitymax)/2, productionTime));
