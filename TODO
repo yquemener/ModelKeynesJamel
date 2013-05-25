@@ -1,7 +1,29 @@
-V Remove progress dialog in analyst
+Code cleaning
+
 * Add text output for Analyst
 * Use methods reflections to get truly parametrizable scenarios
 * Put a probe mechanism to generalize ploting
 * Create a base class for managers inside firms
+* Make it possible to change firms parameters during the simulation
+* Remove scenarios from the simulation itself
 V Remove unused Parser object
+V Remove progress dialog in analyst
+
+Documentation
+
 * Make a doc/list of all objects (and their relationships) of the realSphere (machines, factories, inventories)
+* Make a bigger test with all possible parameter change
+
+GUI
+
+* Give a way to visualize individual firms and households
+* Display revenues/wealth histograms
+* Change parameters live
+* Observe blackboards of firms, see the jobs openings and the state of their stocks
+
+MODEL
+
+* Implement several banks
+* Implement government
+
+* Ask Stéphane about the different type of goods
