@@ -90,7 +90,8 @@ public class FirmsSector extends JamelObject {
 		this.firmsList = new LinkedList<Firm>() ;
 		this.finalGoodsProvidersList = new LinkedList<Firm>() ;
 		this.intermediateGoodsProvidersList = new LinkedList<Firm>() ;
-		this.scenario = aScenario;
+		this.scenario = new LinkedList<String>(); 
+        //this.scenario = aScenario;
 		//JamelSimulator.println("Firms sector: ok.");
 	}
 
@@ -117,9 +118,10 @@ public class FirmsSector extends JamelObject {
 	 * Creates new firms according to the parameters.
 	 * @param parametersMap - a map of parameters (key of the parameter, value of the parameter).
 	 */
-	private void newFirms(Map<String, String> parametersMap) {
+	public void newFirms(Map<String, String> parametersMap) {
 		Integer newFirms = null;
 		String className = null;
+        System.out.println("Creating new firms "+parametersMap);
 		for(Entry<String, String> entry : parametersMap.entrySet()) {
 			final String key = entry.getKey();
 			final String value = entry.getValue();

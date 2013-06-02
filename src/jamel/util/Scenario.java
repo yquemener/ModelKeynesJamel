@@ -88,6 +88,12 @@ public class Scenario {
                     }
                 }
             }
+            if(this.eventType.equals("new")) {
+                if(this.target.equals("Firms")) {
+                    System.out.println("Creating new firms "+arguments.size());
+                    circuit.firms.newFirms(arguments);
+                }
+            }            
         }
         @Override
         public String toString(){
@@ -114,9 +120,7 @@ public class Scenario {
     }
         
     public void runPeriod(Timer.JamelPeriod period) {
-        System.out.println("Num of events : " + events.size());
         for(Event evt:events){
-            System.out.println("Current period = "+period+" tested period = "+evt.period);
             if(evt.period.equals(period)) {
                 System.out.println("Executing "+evt.toString());
                 evt.executeOnCircuit(circuit);
