@@ -80,7 +80,7 @@ public class FirmsSector extends JamelObject {
 	private final LinkedList<Firm> intermediateGoodsProvidersList ;
 
 	/** The scenario. */
-	private final LinkedList<String> scenario;
+	private final LinkedList<String> delayedActions;
 
 	/**
 	 * Creates a new firms sector.
@@ -90,7 +90,7 @@ public class FirmsSector extends JamelObject {
 		this.firmsList = new LinkedList<Firm>() ;
 		this.finalGoodsProvidersList = new LinkedList<Firm>() ;
 		this.intermediateGoodsProvidersList = new LinkedList<Firm>() ;
-		this.scenario = new LinkedList<String>(); 
+		this.delayedActions = new LinkedList<String>(); 
         //this.scenario = aScenario;
 		//JamelSimulator.println("Firms sector: ok.");
 	}
@@ -107,7 +107,7 @@ public class FirmsSector extends JamelObject {
 		Circuit.println(currentDate+" Firm Failure ("+aBankruptFirm.getName()+")");
 		final String someMonthsLater = getCurrentPeriod().getNewPeriod(12+getRandom().nextInt(12)).toString();
 		//final String instructions = aBankruptFirm.getParametersString();
-		this.scenario.add(someMonthsLater+".new(firms=1,type="+aBankruptFirm.getClass().getName()+")");
+		this.delayedActions.add(someMonthsLater+".new(firms=1,type="+aBankruptFirm.getClass().getName()+")");
 		/*final String type = aBankruptFirm.getClass().getName();
 		final String production = aBankruptFirm.getProduction().name();
 		this.scenario.add(someMonthsLater+".new(firms=1,type="+type+",production="+production+")");*/
@@ -373,14 +373,12 @@ public class FirmsSector extends JamelObject {
 		updateFinalGoodsProvidersList();
 		updateIntermediateGoodsProvidersList();
 		final String date = getCurrentPeriod().toString();
-		final LinkedList<String> eList = Circuit.getParametersList(this.scenario, date, "\\.");
-		final LinkedList<String> eList2 = new LinkedList<String>();
+		final LinkedList<String> eList = Circuit.getParametersList(this.delayedActions, date, "\\.");
 		if (!eList.isEmpty()) {
 			for (String string: eList){
 				String[] word = string.split("\\)",2);
 				String[] event = word[0].split("\\(",2);
 				if (event[0].equals("new"))
-					// This event must be treated at the FirmsSector level.
 					newFirms(getParamHashMap(event[1]));
 			}
 		}
