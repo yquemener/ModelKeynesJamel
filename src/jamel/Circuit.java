@@ -284,7 +284,7 @@ public class Circuit extends JamelObject {
 		this.firmsParams.put(ExternalLabel.PARAM_FACTORY_PROD_MIN, 100);		
 		this.firmsParams.put(ExternalLabel.PARAM_FACTORY_PROD_MAX, 100);		
 		this.firmsParams.put(ExternalLabel.PARAM_FACTORY_PRODUCTION_TIME, 8);
-        this.firmsParams.put(ExternalLabel.PRICE_FLEXIBILITY, 0.15f);
+        this.firmsParams.put(ExternalLabel.PRICE_FLEXIBILITY, 0.15d);
         this.firmsParams.put(ExternalLabel.PRODUCTION, ProductionType.integratedProduction);
         this.firmsParams.put(ExternalLabel.WAGE_DOWN_FLEX, 0.02);
         this.firmsParams.put(ExternalLabel.WAGE_UP_FLEX, 0.03);

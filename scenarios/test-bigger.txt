@@ -8,7 +8,7 @@ Circuit.2000-01.set(randomSeed=0,range=600)
 
 
 
-Bank.2000-01.set(MonthlyInterestRate=0.0040741237836484,NormalTerm=12,TargetedCapitalRatio=0.1)
+Bank.2000-01.set(MonthlyInterestRate=0.0040741237836484,NormalTerm=12,TargetedCapitalRatio=0.1,Accommodating=1)
 
 Households.2000-01.new(households=3000,type=jamel.agents.households.HouseholdTypeB,resistance=12,flexibility=0.1)
 

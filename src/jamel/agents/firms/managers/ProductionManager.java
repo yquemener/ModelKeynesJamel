@@ -66,7 +66,7 @@ public class ProductionManager extends JamelObject{
 	public void updateProductionLevel() {
 		final float alpha1 = getRandom().nextFloat();
 		final float alpha2 = getRandom().nextFloat();
-		final float inventoryRatio = (Float)this.blackboard.get(InternalLabel.INVENTORY_LEVEL_RATIO);
+		final double inventoryRatio = (Double)this.blackboard.get(InternalLabel.INVENTORY_LEVEL_RATIO);
 		if (inventoryRatio<1-alpha1*alpha2) {// Low level
 			final float delta = (alpha1*this.utilizationRateFlexibility);
 			this.utilizationRateTargeted += delta;
@@ -81,8 +81,8 @@ public class ProductionManager extends JamelObject{
 				this.utilizationRateTargeted = 0;
 			}
 		}
-		final float maxUtilization = (Float) this.blackboard.get(InternalLabel.PRODUCTION_LEVEL_MAX);
-		final float rectifiedTarget = Math.min(this.utilizationRateTargeted, maxUtilization);
+		final double maxUtilization = (Double) this.blackboard.get(InternalLabel.PRODUCTION_LEVEL_MAX);
+		final double rectifiedTarget = Math.min(this.utilizationRateTargeted, maxUtilization);
 		this.blackboard.put(InternalLabel.PRODUCTION_LEVEL, rectifiedTarget);
 	}
 

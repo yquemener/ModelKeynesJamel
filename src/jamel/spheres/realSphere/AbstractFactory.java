@@ -218,7 +218,7 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 	 * Returns the max level of production according to the current resources of the factory. 
 	 * @return a float between 0 and 100.
 	 */
-	abstract protected float getMaxLevelOfProduction();
+	abstract protected double getMaxLevelOfProduction();
 
 	/**
 	 * Returns the value of the inventory of raw materials.
@@ -290,11 +290,11 @@ abstract class AbstractFactory implements jamel.spheres.realSphere.Factory{
 		this.productionVolume = 0;
 		this.productionValue = 0;
 		updateMaxProduction();
-		final float normalInventoryStockLevel = inventoryStockTarget *this.maxProduction;
-		final float currentInventoryStockLevel = this.finishedGoodsInventory.getVolume();
+		final double normalInventoryStockLevel = inventoryStockTarget *this.maxProduction;
+		final double currentInventoryStockLevel = this.finishedGoodsInventory.getVolume();
 		this.blackboard.put(InternalLabel.INVENTORY_LEVEL_RATIO, currentInventoryStockLevel/normalInventoryStockLevel);
 		this.blackboard.put(InternalLabel.UNIT_COST,this.finishedGoodsInventory.getUnitCost());
-		this.blackboard.put(InternalLabel.PRODUCTION_LEVEL_MAX, this.getMaxLevelOfProduction());
+		this.blackboard.put(InternalLabel.PRODUCTION_LEVEL_MAX, (double)this.getMaxLevelOfProduction());
 		this.blackboard.put(InternalLabel.MACHINERY, this.machinery.size());
 		this.blackboard.put(InternalLabel.RAW_MATERIALS_NEEDS, this.getRawMaterialsNeedVolume());
 	}

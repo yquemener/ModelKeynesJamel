@@ -38,3 +38,39 @@ Une classe Scenario est donc créée, qui a pour mission de lire les scénario e
 (2013-06-02) J'ai choisi la deuxième solution, qui finalement ne me semble pas si mauvaise. J'ai renommé le membre .scenario en .delayedActions, car il n'est plus utilisé que pour cela. Le scénario n'est plus importé à la création, les créations de firmes initiales sont la responsabilité de la classe indépendante Scenario. Le scénario est donc sorti de FirmsSector. Restent encore HouseholdsSector
 
 (2013-06-03) Fini de retirer scenario. Il me reste à mettre en place tous les setters qui permettront à Scenario de modifier de nombreux paramètres de la simu
+
+
+Stock-Flux correct model
+------------------------
+
+(2013-06-03) Thanks to some excahnges with Stephane, I now understand better the constraints necessary for a "stock flux correct" simulation. While removing the scenarios, I made several private accessors public, but in order to enforce SFCness, I'll need to create cleaner APIs so that agents can not change parameters of the simulation or of themselves. 
+
+
+Unified system for external parameters
+--------------------------------------
+
+(2013-06-03) Households, Firms and Bank all have different ways to receive parameter modifications. We should use only one.
+    1. Households : there is a .parameterMap hashmap<string,string> member which is accessed through a public setter, a call to .updateParameters() then sets internal private variables according to the values stored in the hashmap.
+        Pros :
+            - Makes the parameter change explicit through a function call
+            - Internal members are not directly accessible
+        Cons : 
+            - When adding a parameter, updateParameters() must be modified manually (could be automated though but would cause some security concerns)
+            - Duplicates information
+            
+    2. Firms : there is a .externalParams which is also a hashmap but using <ExternalLabel, Object> instead. It is used directly by functions which need an external parameter
+        Pros :
+            - All parameters name are associated a human readable description
+            - Adding a parameter just requires adding an entry in the enum
+        Cons :
+            - Casting (from Object, can be very cheap) as well as searching a hash happens at every function call that needs a parameter
+
+    3. Banks : accessed from Scenario thanks to calls to getClass().getDeclaredField(...)
+        Pros :
+            - Allow to access every parameter without any need to rewrite classes
+            - Makes us closer to the implementation=model principle
+            - Probably faster than 1. and 2.
+        Cons : 
+            - Allow any modification of a public member without possibilities of control
+
+I choose 2. In theory, 3. would be better. Faster, and closer to the ideal model but I feel it closes too many options in the future.

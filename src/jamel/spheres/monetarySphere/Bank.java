@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.HashMap;
 
 /**
  * Represents the single representative bank.
@@ -44,6 +45,39 @@ import java.util.LinkedList;
  */
 public class Bank extends JamelObject implements AccountHolder {
 
+  /**
+   * Contains the labels of the parameters of the bank.
+   */
+  public enum ExternalLabel {
+      Accommodating("Accommodating"),
+      MonthlyInterestRate("MonthlyInterestRate"),
+      NormalTerm("NormalTerm"),
+      TargetedCapitalRatio("TargetedCapitalRatio");
+
+      private String description;
+
+      private final static HashMap<String, ExternalLabel> hash;
+
+      // Static constructor
+      static{
+        hash = new HashMap<String, ExternalLabel>();
+        for(ExternalLabel l:ExternalLabel.values())
+        {
+          hash.put(l.toString(), l);
+        }
+      }
+
+      ExternalLabel(String s){
+          description = s;
+      }
+
+      @Override
+      public String toString()    { return description; }
+
+      public static ExternalLabel fromString(String s) { return hash.get(s); }
+
+}  
+  
 	/**
 	 * A class for basic accounts.
 	 * <p>
@@ -264,7 +298,7 @@ public class Bank extends JamelObject implements AccountHolder {
 					return;
 				}
 				if (this.lQuality.isDoubtFul()) {
-					if (Bank.this.Accommodating) {
+					if ((Integer)(Bank.this.externalParams.get(ExternalLabel.Accommodating))==1) {
 						// If the bank is accommodating then the loan is not downgraded.
 						return; 
 					}
@@ -467,7 +501,9 @@ public class Bank extends JamelObject implements AccountHolder {
 		public void lend(long principal) {
 			if (!open) 
 				throw new RuntimeException("This account is closed.");
-			new Loan(principal,Quality.GOOD, Bank.this.MonthlyInterestRate, Bank.this.NormalTerm);
+			new Loan(principal,Quality.GOOD, 
+                    (Double)(Bank.this.externalParams.get(ExternalLabel.MonthlyInterestRate)),
+                    (Integer)(Bank.this.externalParams.get(ExternalLabel.NormalTerm)));
 		}
 
 	}
@@ -496,15 +532,9 @@ public class Bank extends JamelObject implements AccountHolder {
 	/** A flag that indicates whether the bank the is bankrupt or not. */
 	private boolean bankrupt = false;
 
-	/** A flag that indicates whether the bank is accommodating or not. */
-	public boolean Accommodating = true;
-
-	/** The normal interest rate (monthly). */
-	public double MonthlyInterestRate = 0;
-
-	/** The normal term of credits. */
-	public int NormalTerm = 0;
-
+    /** The repository of external parameters. */
+	final public HashMap<ExternalLabel,Object> externalParams;
+	
 	/** The capital ratio targeted by the bank. */
 	public float TargetedCapitalRatio = 0f;
 
@@ -514,6 +544,7 @@ public class Bank extends JamelObject implements AccountHolder {
 	public Bank() { 
 		this.bankAccount = new BasicAccount(this); 
 		this.accountsList = new LinkedList<CurrentAccount>() ;
+        this.externalParams = new HashMap<ExternalLabel, Object>();
 	}
 
 	/**
@@ -532,7 +563,7 @@ public class Bank extends JamelObject implements AccountHolder {
 	 * @return - the penalty rate.
 	 */
 	private double getPenaltyRate() {
-		return MonthlyInterestRate*2;
+		return (Double)(this.externalParams.get(ExternalLabel.MonthlyInterestRate))*2;
 	}
 
 	/**
@@ -560,65 +591,6 @@ public class Bank extends JamelObject implements AccountHolder {
 		}
 		return totalLiabilities;
 	}
-
-	/**
-	 * Sets the accommodating behavior of the bank.
-	 * @param param - a string that contains a parsable boolean.
-	 */
-	private void setAccommodating(String param) {
-		this.Accommodating = Boolean.parseBoolean(param);
-	}
-
-	/**
-	 * Sets the normal interest rate (annual).
-	 * @param param - a string that contains a parsable float. 
-	 */
-	private void setAnnualRate(String param) {
-		this.MonthlyInterestRate = yearly2Monthly(Float.parseFloat(param));
-	}
-
-	/**
-	 * Sets the normal term of credits (as a number of months).
-	 * @param param - a string that contains a parsable integer.
-	 */
-	public void setNormalTerm(String param) {
-		this.NormalTerm = Integer.parseInt(param);		
-	}
-
-	/**
-	 * Sets the parameters of the circuit.
-	 * @param parameters - an array of strings that contain parameters.
-	 */
-	private void setParameters(String[] parameters) {
-		for(final String line:parameters) {
-			final String[] parameter = line.split("=",2);
-			if (parameter[0].equals("accommodating")) setAccommodating(parameter[1]);
-			else if (parameter[0].equals("rate")) setAnnualRate(parameter[1]);
-			else if (parameter[0].equals("term")) setNormalTerm(parameter[1]);
-			else if (parameter[0].equals("targetedCapitalRatio")) setTargetedCapitalRatio(parameter[1]);
-			else throw new RuntimeException("Unknown parameter \""+parameter[0]+"\".");
-		}
-
-	}
-
-	/**
-	 * Sets the capital ratio targeted by the bank.
-	 * @param param - a string that contains a parsable float. 
-	 */
-	private void setTargetedCapitalRatio(String param) {
-		this.TargetedCapitalRatio = Float.parseFloat(param);		
-	}
-
-	/**
-	 * For debugging purpose.
-	 */
-	/*private void checkConsistency() {	
-		long capital = this.bankAccount.getAmount();
-		long deposits = this.getTotalLiabilities();
-		long loans = this.getTotalAssets();
-		if (loans-deposits!=capital)
-			throw new RuntimeException("Inconsistency ("+(loans-deposits)+","+capital+")");
-	}*/
 
 	/**
 	 * Closes the bank.<br>
@@ -653,7 +625,7 @@ public class Bank extends JamelObject implements AccountHolder {
 		for(CurrentAccount account : this.accountsList){
 			account.recover();
 			if (account.getDebtorStatus().isBad()) {
-				if (!this.Accommodating) {
+				if ((Integer)(this.externalParams.get(ExternalLabel.Accommodating))==0) {
 					this.bankData.addBankruptcy();
 					// The bank tries to cancel the debt of the bad debtor.
 					final long nPLoans = account.getDebt();
@@ -721,7 +693,8 @@ public class Bank extends JamelObject implements AccountHolder {
 			throw new RuntimeException("The bank is bankrupt.");
 		final long ownCapital = bankAccount.getAmount();
 		final long totalAssets = this.getTotalAssets();
-		final long requiredCapital = (long)(totalAssets*this.TargetedCapitalRatio);
+		final long requiredCapital = (long)(totalAssets*
+                ((Double)this.externalParams.get(ExternalLabel.TargetedCapitalRatio)));
 		final long excedentCapital = Math.max(0, ownCapital-requiredCapital);
 		long dividend = excedentCapital/12;	
 		if (dividend<0) throw new RuntimeException("Dividend must be positive.") ;

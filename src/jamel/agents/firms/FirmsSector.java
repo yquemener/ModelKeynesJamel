@@ -165,7 +165,7 @@ public class FirmsSector extends JamelObject {
                   {
                     try{ o = Integer.parseInt(s);}
                     catch(NumberFormatException e) {
-                      try{ o = Float.parseFloat(s);}
+                      try{ o = Double.parseDouble(s);}
                       catch(NumberFormatException e2) {
                         o = s;
                       }}

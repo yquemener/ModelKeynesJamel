@@ -141,7 +141,7 @@ public class IntermediateFactory extends AbstractFactory {
 	 * @return 100.
 	 */
 	@Override
-	protected float getMaxLevelOfProduction() {
+	protected double getMaxLevelOfProduction() {
 		return 100;
 	}
 

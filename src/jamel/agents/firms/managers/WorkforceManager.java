@@ -197,8 +197,8 @@ public class WorkforceManager extends JamelObject {
 			else this.offeredWage = defaultWage ;
 		}
 		else {
-			final float wageUpwardFlexibility = (Float) this.externalParams.get(ExternalLabel.WAGE_UP_FLEX);
-			final float wageDownwardFlexibility = (Float) this.externalParams.get(ExternalLabel.WAGE_DOWN_FLEX);
+			final double wageUpwardFlexibility = (Double) this.externalParams.get(ExternalLabel.WAGE_UP_FLEX);
+			final double wageDownwardFlexibility = (Double) this.externalParams.get(ExternalLabel.WAGE_DOWN_FLEX);
 			final double currentVacancyRate = this.getVacanciesRate() ;
 			final float alpha1 = getRandom().nextFloat();
 			final float alpha2 = getRandom().nextFloat();
@@ -323,7 +323,7 @@ public class WorkforceManager extends JamelObject {
 		// On calcule le besoin de main d'oeuvre.
 
 		final int machinery = (Integer)this.blackboard.get(InternalLabel.MACHINERY);
-		final float productionLevel = (Float)this.blackboard.get(InternalLabel.PRODUCTION_LEVEL);
+		final double productionLevel = (Double)this.blackboard.get(InternalLabel.PRODUCTION_LEVEL);
 		final int targetedWorkforce = (int) ((machinery*productionLevel)/100f);
 		this.blackboard.put(InternalLabel.WORKFORCE_TARGET, targetedWorkforce);		
 

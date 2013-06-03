@@ -19,7 +19,9 @@
 package jamel.util;
 
 import jamel.Circuit;
+import jamel.agents.firms.ExternalLabel;
 import jamel.util.Timer.JamelPeriod;
+import jamel.spheres.monetarySphere.Bank;
 import java.util.HashMap;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -67,23 +69,22 @@ public class Scenario {
                     System.out.println("Setting bank parameters "+arguments.size());
                     for(String k : arguments.keySet()) {
                         try {
-                            System.out.println("Setting field "+k+" to "+arguments.get(k));
-                            Field f = circuit.bank.getClass().getDeclaredField(k);
-                            if(f.getGenericType() == Float.TYPE) {
-                                f.set(circuit.bank, Float.parseFloat(arguments.get(k)));
+                          System.out.println("Setting field "+k+" to "+arguments.get(k));
+                          String value = arguments.get(k);
+                          Object o;
+
+                            try{ o = Integer.parseInt(value);}
+                            catch(NumberFormatException e) {
+                              try{ o = Double.parseDouble(value);}
+                              catch(NumberFormatException e2) {
+                                o = value;
+                              }
                             }
-                            else if(f.getGenericType() == Double.TYPE) {
-                                f.set(circuit.bank, Double.parseDouble(arguments.get(k)));
-                            }
-                            else if(f.getGenericType() == Integer.TYPE) {
-                                f.set(circuit.bank, Integer.parseInt(arguments.get(k)));
-                            }
+                            circuit.bank.externalParams.put(
+                                    Bank.ExternalLabel.fromString(k), o);
                         }
-                        catch (NoSuchFieldException e) {
+                        catch (IllegalAccessError e) {
                             throw new RuntimeException("Illegal parameter: "+k);
-                        }
-                        catch (IllegalAccessException e) {
-                            throw new RuntimeException("Event tries to access forbidden field :"+k);
                         }
                     }
                 }
@@ -97,7 +98,7 @@ public class Scenario {
                     System.out.println("Creating new households "+arguments.size());
                     circuit.households.newHouseholds(arguments);
                 }
-            }            
+            }
         }
         @Override
         public String toString(){

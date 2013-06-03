@@ -118,7 +118,7 @@ class BasicHousehold extends AbstractHousehold {
 	/** The maximum size of a list of providers or employers. */
 	protected int maxSize = 10; // TODO should be a parameter.
 
-	/** A map that contains the specific parameters of the firm. */
+	/** A map that contains the specific parameters of the household. */
 	protected final HashMap<String,String> parametersMap = new HashMap<String,String>();
 
 	/** The list of usual providers. */

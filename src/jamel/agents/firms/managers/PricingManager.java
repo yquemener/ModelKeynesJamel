@@ -63,8 +63,8 @@ public class PricingManager extends JamelObject {
 	 * Updates the unit price.
 	 */
 	public void updatePrice() {
-		final Float priceFlexibility = (Float)this.externalParams.get(ExternalLabel.PRICE_FLEXIBILITY);
-		final Float inventoryRatio = (Float)this.blackboard.get(InternalLabel.INVENTORY_LEVEL_RATIO);
+		final Double priceFlexibility = (Double)this.externalParams.get(ExternalLabel.PRICE_FLEXIBILITY);
+		final Double inventoryRatio = (Double)this.blackboard.get(InternalLabel.INVENTORY_LEVEL_RATIO);
 		final Double unitCost = (Double)this.blackboard.get(InternalLabel.UNIT_COST);
 		if (this.currentPrice==0) {
 			this.currentPrice = (1.+getRandom().nextFloat()/2.)*unitCost;

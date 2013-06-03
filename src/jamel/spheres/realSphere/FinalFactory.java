@@ -106,7 +106,7 @@ public class FinalFactory extends AbstractFactory {
 		}
 
 		/** The technical coefficient (the volume of intermediate good consumed by the production of 1 unit of final good). */
-		final private float coefficient;
+		final private double coefficient;
 
 		/**
 		 * Creates a new machine with the given productivity.
@@ -114,7 +114,7 @@ public class FinalFactory extends AbstractFactory {
 		 * @param aTime the production cycle time.
 		 * @param aCoefficient the volume of intermediate good required to produce 1 unit of final good.
 		 */
-		public FinalMachine(int aProductivity, int aTime, float aCoefficient) {
+		public FinalMachine(int aProductivity, int aTime, double aCoefficient) {
 			super(aProductivity, aTime);
 			this.coefficient = aCoefficient;
 		}
@@ -183,7 +183,7 @@ public class FinalFactory extends AbstractFactory {
 	 * @return a float between 0 and 100.
 	 */
 	@Override
-	protected float getMaxLevelOfProduction() {
+	protected double getMaxLevelOfProduction() {
 		float maxLevel = 100f*this.getRawMaterialsInventoryRate();
 		if (maxLevel>100) maxLevel= 100;
 		return maxLevel;
@@ -213,8 +213,8 @@ public class FinalFactory extends AbstractFactory {
 
 	@Override
 	protected Machine newMachine(int productivity, int productionTime) {
-		float coefficient=0;
-		coefficient = (Float)this.externalParams.get(ExternalLabel.TECH_COEFF);
+		double coefficient=0;
+		coefficient = (Double)this.externalParams.get(ExternalLabel.TECH_COEFF);
 		return new FinalMachine(productivity, productionTime,coefficient);
 	}
 
