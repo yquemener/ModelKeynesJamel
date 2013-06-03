@@ -35,6 +35,8 @@ import jamel.util.data.PeriodDataset;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Represents the sector of the households.
@@ -49,16 +51,12 @@ public class HouseholdsSector extends JamelObject {
 	/** The list of the households. */
 	private final LinkedList<Household> householdsList ;
 
-	/** The scenario. */
-	private final LinkedList<String> scenario;
-
 	/**
 	 * Creates a new households sector.
 	 * @param aScenario - a list of strings that contain the description of the events.
 	 */
-	public HouseholdsSector(LinkedList<String> aScenario) { 
+	public HouseholdsSector() { 
 		this.householdsList = new LinkedList<Household>() ;
-		this.scenario = aScenario;
 		//JamelSimulator.println("Households sector: ok.");
 	}
 
@@ -69,23 +67,24 @@ public class HouseholdsSector extends JamelObject {
 	 * the type of household to create,
 	 * and possibly other parameters.
 	 */
-	private void newHouseholds(String[] parameters) {
+	public void newHouseholds(Map<String, String> parametersMap) {
 		Integer newHouseholds = null;
 		String householdClassName = null;
 		String moreParameter = null;
-		for(String parameter : parameters) {
-			final String[] word=parameter.split("=",2);
-			if (word[0].equals("households")) {
+		for(Entry<String, String> entry : parametersMap.entrySet()) {
+            final String key = entry.getKey();
+			final String value = entry.getValue();
+			if (key.equals("households")) {
 				if (newHouseholds != null) throw new RuntimeException("Event new households : Duplicate parameter : households.");
-				newHouseholds = Integer.parseInt(word[1]);
+				newHouseholds = Integer.parseInt(value);
 			}
-			else if (word[0].equals("type")) {
+			else if (key.equals("type")) {
 				if (householdClassName != null) throw new RuntimeException("Event new households : Duplicate parameter : type.");
-				householdClassName = word[1];				
+				householdClassName = value;				
 			}
 			else {
-				if (moreParameter==null) moreParameter = parameter;
-				else moreParameter = moreParameter+","+parameter;
+				if (moreParameter==null) moreParameter = key+"="+value;
+				else moreParameter = moreParameter+","+key+"="+value;
 			}
 		}
 		if (newHouseholds==null) 
@@ -140,7 +139,7 @@ public class HouseholdsSector extends JamelObject {
 	 */
 	public void open() {
 		Collections.shuffle(householdsList, getRandom());
-		final String date = getCurrentPeriod().toString();
+		/*final String date = getCurrentPeriod().toString();
 		final LinkedList<String> eList = Circuit.getParametersList(this.scenario, date, "\\.");
 		final LinkedList<String> eList2 = new LinkedList<String>();
 		if (!eList.isEmpty()) {
@@ -152,9 +151,9 @@ public class HouseholdsSector extends JamelObject {
 				else 
 					eList2.add(string);
 			}
-		}
+		}*/
 		for (Household selectedHousehold : householdsList) {
-			selectedHousehold.open(eList2) ;
+			selectedHousehold.open() ;
 		}
 	}
 

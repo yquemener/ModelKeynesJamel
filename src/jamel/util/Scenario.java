@@ -93,6 +93,10 @@ public class Scenario {
                     System.out.println("Creating new firms "+arguments.size());
                     circuit.firms.newFirms(arguments);
                 }
+                else if(this.target.equals("Households")) {
+                    System.out.println("Creating new households "+arguments.size());
+                    circuit.households.newHouseholds(arguments);
+                }
             }            
         }
         @Override

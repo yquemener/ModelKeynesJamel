@@ -443,11 +443,11 @@ class BasicHousehold extends AbstractHousehold {
 	 * @param eList - a list of strings that describes the events for the current period. 
 	 */
 	@Override
-	public void open(LinkedList<String> eList) {
+	public void open() {
 		updateLaborPower();
 		data.clear() ;
 		this.incomeTimeSeries.add(getCurrentPeriod().getMonth(), 0);
-		for (String string: eList){
+		/*for (String string: eList){
 			String[] word = string.split("\\)",2);
 			String[] event = word[0].split("\\(",2);
 			if (event[0].equals("set")) {
@@ -456,7 +456,7 @@ class BasicHousehold extends AbstractHousehold {
 			}
 			else
 				throw new RuntimeException("Unknown event \""+event[0]+"\".");
-		}
+		}*/
 	}
 
 	/**

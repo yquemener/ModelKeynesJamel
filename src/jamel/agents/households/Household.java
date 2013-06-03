@@ -42,7 +42,7 @@ public interface Household extends Worker, CapitalOwner, Consumer {
 	 * Completes some technical operations at the beginning of the period.  
 	 * @param eventList - a list of strings that describes the events for the current period. 
 	 */
-	void open(LinkedList<String> eventList);
+	void open();
 
 	/**
 	 * Closes the period.

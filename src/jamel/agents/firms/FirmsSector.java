@@ -79,14 +79,13 @@ public class FirmsSector extends JamelObject {
 	/** The list of the providers of intermediate goods. */
 	private final LinkedList<Firm> intermediateGoodsProvidersList ;
 
-	/** The scenario. */
+	/** Stores the anticipated creation of firms at a later date. */
 	private final LinkedList<String> delayedActions;
 
 	/**
 	 * Creates a new firms sector.
-	 * @param aScenario - a list of strings that contain the description of the events.
 	 */
-	public FirmsSector(LinkedList<String> aScenario) {
+	public FirmsSector() {
 		this.firmsList = new LinkedList<Firm>() ;
 		this.finalGoodsProvidersList = new LinkedList<Firm>() ;
 		this.intermediateGoodsProvidersList = new LinkedList<Firm>() ;

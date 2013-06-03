@@ -1,3 +1,13 @@
+Suppression de la classe Blackboard
+-----------------------------------
+
+(2013-04-27) Blackboard est en réalité un HashMap qui dispose d'une subtilité : ses éléments peuvent expirer dans le temps. Cependant, cette propriété ne semble pas utilisée du tout. Si les tests le confirment je remplacerai Blackboard par une simple HashMap.
+
+(+1h) Bon, en fait seulement deux types de validité existent : "juste cette période" et "permanente". Je pense donc créer un blackboard (en réalité un hashmap) effacé à chaque tour, et par ailleurs une table de paramètres exogènes.
+
+(2013-04-29) Le blackboard a été totalement enlevé et remplacé par deux hashtables et des enums donnant le nom des paramètres endogènes et exogènes.
+
+
 Réécriture du système de scénario
 ---------------------------------
 
@@ -25,11 +35,6 @@ Une classe Scenario est donc créée, qui a pour mission de lire les scénario e
     * pour : solution théorique plus satisfaisante, permet de rendre la simu indépendante de la date courante
     * contre : nécessite de mettre les réferences de test à la poubelle
 
-Suppression de la classe Blackboard
------------------------------------
+(2013-06-02) J'ai choisi la deuxième solution, qui finalement ne me semble pas si mauvaise. J'ai renommé le membre .scenario en .delayedActions, car il n'est plus utilisé que pour cela. Le scénario n'est plus importé à la création, les créations de firmes initiales sont la responsabilité de la classe indépendante Scenario. Le scénario est donc sorti de FirmsSector. Restent encore HouseholdsSector
 
-(2013-04-27) Blackboard est en réalité un HashMap qui dispose d'une subtilité : ses éléments peuvent expirer dans le temps. Cependant, cette propriété ne semble pas utilisée du tout. Si les tests le confirment je remplacerai Blackboard par une simple HashMap.
-
-(+1h) Bon, en fait seulement deux types de validité existent : "juste cette période" et "permanente". Je pense donc créer un blackboard (en réalité un hashmap) effacé à chaque tour, et par ailleurs une table de paramètres exogènes.
-
-
+(2013-06-03) Fini de retirer scenario. Il me reste à mettre en place tous les setters qui permettront à Scenario de modifier de nombreux paramètres de la simu
