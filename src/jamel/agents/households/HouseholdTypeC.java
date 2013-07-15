@@ -30,6 +30,7 @@ import jamel.Circuit;
 import jamel.agents.roles.Employer;
 
 import java.util.TreeSet;
+import java.util.Map;
 
 /**
  * Un ménage qui résiste à changer de secteur pour trouver un emploi. 
@@ -47,7 +48,7 @@ public class HouseholdTypeC extends HouseholdTypeB {
 	 * @param aName  the name.
 	 * @param parameters  a string that contains some parameters.
 	 */
-	public HouseholdTypeC(String aName, String parameters) {
+	public HouseholdTypeC(String aName, Map<String,String> parameters) {
 		super(aName, parameters);
 		this.mobility = 0.5f; // TODO should be a parameter.
 	}

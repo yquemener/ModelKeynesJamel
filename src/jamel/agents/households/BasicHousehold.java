@@ -29,6 +29,7 @@ package jamel.agents.households;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -57,6 +58,39 @@ import jamel.util.markets.ProviderComparator;
  */
 class BasicHousehold extends AbstractHousehold {
 
+  
+    /**
+   * Contains the labels of the parameters of the households.
+   */
+  public enum ExternalLabel {
+      savingPropensity("savingPropensity"),
+      resistance("resistance"),
+      mobility("mobility"),
+      flexibility("flexibility");
+
+      private String description;
+
+      private final static HashMap<String, ExternalLabel> hash;
+
+      // Static constructor
+      static{
+        hash = new HashMap<String, ExternalLabel>();
+        for(ExternalLabel l:ExternalLabel.values())
+        {
+          hash.put(l.toString(), l);
+        }
+      }
+
+      ExternalLabel(String s){
+          description = s;
+      }
+
+      @Override
+      public String toString()    { return description; }
+
+      public static ExternalLabel fromString(String s) { return hash.get(s); }
+
+  }  
 	/** The max number of employers in the memory of the household. */
 	protected static final int maxEmployers = 10; // TODO should be a parameter.
 
@@ -89,7 +123,7 @@ class BasicHousehold extends AbstractHousehold {
 	private final HouseholdDataset data ;
 
 	/** The flexibility of the reservation wage. */
-	private float flexibility;
+	private double flexibility;
 
 	/** The income time series. */
 	private final TimeSeries incomeTimeSeries = new TimeSeries("Income");
@@ -107,10 +141,10 @@ class BasicHousehold extends AbstractHousehold {
 	private int resistance;
 
 	/** The saving propensity. */
-	private float savingPropensity;
+	private double savingPropensity;
 
 	/** The unemployment duration. */
-	private float unemploymentDuration;
+	private double unemploymentDuration;
 
 	/** The employers. */
 	protected final LinkedList<Employer> employers ;
@@ -119,13 +153,13 @@ class BasicHousehold extends AbstractHousehold {
 	protected int maxSize = 10; // TODO should be a parameter.
 
 	/** A map that contains the specific parameters of the household. */
-	protected final HashMap<String,String> parametersMap = new HashMap<String,String>();
+	protected final HashMap<ExternalLabel,Object> parametersMap = new HashMap<ExternalLabel,Object>();
 
 	/** The list of usual providers. */
 	protected LinkedList<Provider> providers ;
 
 	/** The reservation wage. */
-	protected float reservationWage;
+	protected double reservationWage;
 
 	/** The preferred sector of the household. */
 	protected ProductionType sector = null;
@@ -135,7 +169,7 @@ class BasicHousehold extends AbstractHousehold {
 	 * @param aName - the name.
 	 * @param parameters - a string that contains some parameters.
 	 */
-	public BasicHousehold(String aName, String parameters) {
+	public BasicHousehold(String aName, Map<String, String> parameters) {
 		this.name = aName;
 		this.bankAccount = Circuit.getNewAccount(this);
 		this.data = new HouseholdDataset();
@@ -196,13 +230,27 @@ class BasicHousehold extends AbstractHousehold {
 	 * Sets the parameters of the household.
 	 * @param string  a string that contain parameters separated by commas.
 	 */
-	private void setParameters(String string) {
-		final String[] rows = string.split(",");
-		for(final String row:rows) {
-			final String[] data = row.split("=",2);
-			this.parametersMap.put(data[0].trim(), data[1].trim());
-		}
-	}
+	private void setParameters(Map<String, String> arguments) {
+      for(String k : arguments.keySet()) {
+          try {
+            System.out.println("Setting field "+k+" to "+arguments.get(k));
+            String value = arguments.get(k);
+            Object o;
+
+              try{ o = Integer.parseInt(value);}
+              catch(NumberFormatException e) {
+                try{ o = Double.parseDouble(value);}
+                catch(NumberFormatException e2) {
+                  o = value;
+                }
+              }
+              this.parametersMap.put(ExternalLabel.fromString(k), o);
+          }
+          catch (IllegalAccessError e) {
+            throw new RuntimeException("Illegal parameter: "+k);
+          }
+      }
+    }
 
 	/**
 	 * Updates the reservation wage.<br>
@@ -230,9 +278,9 @@ class BasicHousehold extends AbstractHousehold {
 	 * Initializes the defaults parameters.
 	 */
 	protected void defaultSettings() {
-		this.parametersMap.put("savingPropensity", "0.05");
-		this.parametersMap.put("resistance", "12");
-		this.parametersMap.put("flexibility", "0.05");
+		this.parametersMap.put(ExternalLabel.savingPropensity, 0.05d);
+		this.parametersMap.put(ExternalLabel.resistance, 12);
+		this.parametersMap.put(ExternalLabel.flexibility, 0.05d);
 	}
 
 	/**
@@ -275,9 +323,9 @@ class BasicHousehold extends AbstractHousehold {
 	 * using the values recorded in the parameter map.
 	 */
 	protected void updateParameters() {
-		this.savingPropensity = Float.parseFloat(this.parametersMap.get("savingPropensity"));
-		this.flexibility = Float.parseFloat(this.parametersMap.get("flexibility"));
-		this.resistance = Integer.parseInt(this.parametersMap.get("resistance"));
+		this.savingPropensity = (Double)this.parametersMap.get(ExternalLabel.savingPropensity);
+		this.flexibility = (Double)this.parametersMap.get(ExternalLabel.flexibility);
+		this.resistance = (Integer)this.parametersMap.get(ExternalLabel.resistance);
 	}
 
 	/**

@@ -76,7 +76,7 @@ public interface HouseholdDatasetInterface {
 	/**
 	 * @return the reservation wage.
 	 */
-	public abstract float getReservationWage();
+	public abstract double getReservationWage();
 
 	/**
 	 * @return the unemployment duration.

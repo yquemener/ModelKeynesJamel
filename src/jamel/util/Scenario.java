@@ -19,11 +19,11 @@
 package jamel.util;
 
 import jamel.Circuit;
-import jamel.agents.firms.ExternalLabel;
 import jamel.util.Timer.JamelPeriod;
 import jamel.spheres.monetarySphere.Bank;
+import jamel.agents.firms.ProductionType;
 import java.util.HashMap;
-import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.LinkedList;
 import org.jfree.data.time.Month;
 
@@ -34,7 +34,7 @@ public class Scenario {
         private JamelPeriod period;
         private String target;
         private String eventType;
-        private HashMap<String, String> arguments;
+        private HashMap<String, Object> arguments;
         
         public Event(String s, Circuit c) throws java.lang.IllegalArgumentException{
             String ss[] = s.split("\\(")[0].split("\\.");
@@ -50,15 +50,38 @@ public class Scenario {
                 throw new IllegalArgumentException("Not a valid event : "+s);
             }
             
-            arguments = new HashMap<String, String>();
+            arguments = new HashMap<String, Object>();
             for(String argcouple:argss[1].split(",")) {
                 System.out.println("arrgcouple  : "+ argcouple);
                 String couple[] = argcouple.split("=");
                 if(couple.length!=2){
                     throw new IllegalArgumentException("Not a valid argumene : "+argcouple);
                 }
-                arguments.put(couple[0], couple[1]);
-                System.out.println(couple[0] + "=" + couple[1]);
+                Object o;
+
+                try{ o = Integer.parseInt(couple[1]);}
+                catch(NumberFormatException e) {
+                  try{ o = Double.parseDouble(couple[1]);}
+                  catch(NumberFormatException e2) {
+                    o = couple[1];
+                  }
+                }
+                // Special case for production type, for firms ( TODO : should 
+                // actually be a mechanism for any enum type)
+                if((this.target.equals("Firms"))&&
+                   (couple[0].equals("production")))
+                {
+                  if(couple[1].equals("intermediateProduction"))
+                      o = ProductionType.intermediateProduction;
+                  else if(couple[1].equals("finalProduction"))
+                      o = ProductionType.finalProduction;
+                  else if(couple[1].equals("integratedProduction"))
+                      o = ProductionType.integratedProduction;
+                  else
+                    throw new IllegalArgumentException();
+                }
+                arguments.put(couple[0], o);
+                System.out.println(couple[0] + "=" + o);
             }
         }
         
@@ -70,22 +93,19 @@ public class Scenario {
                     for(String k : arguments.keySet()) {
                         try {
                           System.out.println("Setting field "+k+" to "+arguments.get(k));
-                          String value = arguments.get(k);
-                          Object o;
-
-                            try{ o = Integer.parseInt(value);}
-                            catch(NumberFormatException e) {
-                              try{ o = Double.parseDouble(value);}
-                              catch(NumberFormatException e2) {
-                                o = value;
-                              }
-                            }
-                            circuit.bank.externalParams.put(
-                                    Bank.ExternalLabel.fromString(k), o);
-                        }
+                          circuit.bank.getClass().getField(k).set(circuit.bank, arguments.get(k));
+                                                  }
                         catch (IllegalAccessError e) {
                             throw new RuntimeException("Illegal parameter: "+k);
                         }
+                        catch (NoSuchFieldException e)
+                        {
+                          throw new RuntimeException("No such field: "+k);
+                        }
+                        catch (IllegalAccessException e) {
+                          throw new RuntimeException("Illegal access to "+k);
+                        }
+                          
                     }
                 }
             }
@@ -96,7 +116,11 @@ public class Scenario {
                 }
                 else if(this.target.equals("Households")) {
                     System.out.println("Creating new households "+arguments.size());
-                    circuit.households.newHouseholds(arguments);
+                    Map<String, String> ss = new HashMap<String, String>();
+                    for(String k : arguments.keySet()) {
+                      ss.put(k, (String)arguments.get(k).toString());
+                    }
+                    circuit.households.newHouseholds(ss);
                 }
             }
         }
@@ -115,11 +139,14 @@ public class Scenario {
         this.events = new LinkedList<Event>();
         for(String s:aScenario) {
             try {
-                events.add(new Event(s, c));
+              if(!events.add(new Event(s, c)))
+              {
+                System.out.println("Could not parse event : " + s);
+              }
             }
             catch(IllegalArgumentException e) {
-                /*System.out.println("Invalid because :");
-                e.printStackTrace();*/
+                /*System.out.println("Invalid because :");*/
+                e.printStackTrace();
             }
         }
     }

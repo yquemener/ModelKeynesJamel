@@ -117,89 +117,57 @@ public class FirmsSector extends JamelObject {
 	 * Creates new firms according to the parameters.
 	 * @param parametersMap - a map of parameters (key of the parameter, value of the parameter).
 	 */
-	public void newFirms(Map<String, String> parametersMap) {
-		Integer newFirms = null;
-		String className = null;
-        System.out.println("Creating new firms "+parametersMap);
-		for(Entry<String, String> entry : parametersMap.entrySet()) {
-			final String key = entry.getKey();
-			final String value = entry.getValue();
-			if (key.equals("firms")) {
-				if (newFirms != null) throw new RuntimeException("Event new firms : Duplicate parameter : firms.");
-				newFirms = Integer.parseInt(value);
-			}
-			else if (key.equals("type")) {
-				if (className != null) throw new RuntimeException("Event new firms : Duplicate parameter : type.");
-				className = value;				
-			}
-		}
-		if (newFirms==null) 
-			throw new RuntimeException("Missing parameter: firms.");
-		if (className==null) 
-			throw new RuntimeException("Missing parameter: type.");
-		parametersMap.remove("firms");
-		parametersMap.remove("type");
-		for (int count = 0 ; count<newFirms ; count++){
-			countFirms ++ ;
-			final CapitalOwner owner = Circuit.getRandomCapitalOwner();
-			try {
-				final String name = "Company "+countFirms;
-                HashMap<ExternalLabel,Object> eParams = 
-                        (HashMap<ExternalLabel,Object>)Circuit.getCircuit().firmsParams.clone();
-                for(String label:parametersMap.keySet())
-                {
-                  Object o;
-                  String s = parametersMap.get(label);
-                  if(label.equals("production"))
-                  {
-                    if(s.equals("intermediateProduction"))
-                        o = ProductionType.intermediateProduction;
-                    else if(s.equals("finalProduction"))
-                        o = ProductionType.finalProduction;
-                    else if(s.equals("integratedProduction"))
-                        o = ProductionType.integratedProduction;
-                    else
-                      throw new IllegalArgumentException();
-                  }
-                  else
-                  {
-                    try{ o = Integer.parseInt(s);}
-                    catch(NumberFormatException e) {
-                      try{ o = Double.parseDouble(s);}
-                      catch(NumberFormatException e2) {
-                        o = s;
-                      }}
-                  }
-                  eParams.put(ExternalLabel.fromString(label), o);
-                }
-				final Firm newFirm = (Firm) Class.forName(className,false,ClassLoader.getSystemClassLoader())
-                        .getConstructor(String.class,CapitalOwner.class,HashMap.class).newInstance(name,owner,eParams);
-                
-				firmsList.add(newFirm) ;
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Firm creation failure"); 
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Firm creation failure"); 
-			} catch (SecurityException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Firm creation failure"); 
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Firm creation failure"); 
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Firm creation failure"); 
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Firm creation failure"); 
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-				throw new RuntimeException("Firm creation failure"); 
-			}
-		}
-	}
+	public void newFirms(Map<String, Object> parametersMap) {
+      Integer newFirms = null;
+      String className = null;
+      System.out.println("Creating new firms "+parametersMap);
+
+      newFirms = (Integer)(parametersMap.get("firms"));
+      className = (String)(parametersMap.get("type"));
+      HashMap<ExternalLabel,Object> eParams = 
+              (HashMap<ExternalLabel,Object>)Circuit.getCircuit().firmsParams.clone();       
+
+      if (newFirms==null) 
+          throw new RuntimeException("Missing parameter: firms.");
+      if (className==null) 
+          throw new RuntimeException("Missing parameter: type.");
+      for(String k : parametersMap.keySet()) 
+      {
+        ExternalLabel lbl = ExternalLabel.fromString(k);
+        if(lbl==null) continue;
+        eParams.put(ExternalLabel.fromString(k), parametersMap.get(k));
+      }
+      countFirms ++ ;
+      final CapitalOwner owner = Circuit.getRandomCapitalOwner();
+      try {
+          final String name = "Company "+countFirms;
+          final Firm newFirm = (Firm) Class.forName(className,false,ClassLoader.getSystemClassLoader())
+              .getConstructor(String.class,CapitalOwner.class,HashMap.class).newInstance(name,owner,eParams);
+              firmsList.add(newFirm) ;
+          } catch (ClassNotFoundException e) {
+              e.printStackTrace();
+              throw new RuntimeException("Firm creation failure"); 
+          } catch (IllegalArgumentException e) {
+              e.printStackTrace();
+              throw new RuntimeException("Firm creation failure"); 
+          } catch (SecurityException e) {
+              e.printStackTrace();
+              throw new RuntimeException("Firm creation failure"); 
+          } catch (InstantiationException e) {
+              e.printStackTrace();
+              throw new RuntimeException("Firm creation failure"); 
+          } catch (IllegalAccessException e) {
+              e.printStackTrace();
+              throw new RuntimeException("Firm creation failure"); 
+          } catch (InvocationTargetException e) {
+              e.printStackTrace();
+              throw new RuntimeException("Firm creation failure"); 
+          } catch (NoSuchMethodException e) {
+              e.printStackTrace();
+              throw new RuntimeException("Firm creation failure"); 
+          }
+      }
+
 
 	/**
 	 * Updates the list of providers of final goods.
@@ -372,15 +340,6 @@ public class FirmsSector extends JamelObject {
 		updateFinalGoodsProvidersList();
 		updateIntermediateGoodsProvidersList();
 		final String date = getCurrentPeriod().toString();
-		final LinkedList<String> eList = Circuit.getParametersList(this.delayedActions, date, "\\.");
-		if (!eList.isEmpty()) {
-			for (String string: eList){
-				String[] word = string.split("\\)",2);
-				String[] event = word[0].split("\\(",2);
-				if (event[0].equals("new"))
-					newFirms(getParamHashMap(event[1]));
-			}
-		}
 		for (Firm selectedFirm : firmsList) {
 			selectedFirm.open() ;
 		}

@@ -44,39 +44,6 @@ import java.util.HashMap;
  * Encapsulates a list of accounts.
  */
 public class Bank extends JamelObject implements AccountHolder {
-
-  /**
-   * Contains the labels of the parameters of the bank.
-   */
-  public enum ExternalLabel {
-      Accommodating("Accommodating"),
-      MonthlyInterestRate("MonthlyInterestRate"),
-      NormalTerm("NormalTerm"),
-      TargetedCapitalRatio("TargetedCapitalRatio");
-
-      private String description;
-
-      private final static HashMap<String, ExternalLabel> hash;
-
-      // Static constructor
-      static{
-        hash = new HashMap<String, ExternalLabel>();
-        for(ExternalLabel l:ExternalLabel.values())
-        {
-          hash.put(l.toString(), l);
-        }
-      }
-
-      ExternalLabel(String s){
-          description = s;
-      }
-
-      @Override
-      public String toString()    { return description; }
-
-      public static ExternalLabel fromString(String s) { return hash.get(s); }
-
-}  
   
 	/**
 	 * A class for basic accounts.
@@ -298,7 +265,7 @@ public class Bank extends JamelObject implements AccountHolder {
 					return;
 				}
 				if (this.lQuality.isDoubtFul()) {
-					if ((Integer)(Bank.this.externalParams.get(ExternalLabel.Accommodating))==1) {
+					if (Bank.this.Accommodating==1) {
 						// If the bank is accommodating then the loan is not downgraded.
 						return; 
 					}
@@ -413,7 +380,8 @@ public class Bank extends JamelObject implements AccountHolder {
 						+", Time before payback: "+(lDueDate-getCurrentPeriod().getValue());
 			}
 		}
-
+  
+        
 		/** The list of debts. */
 		private final LinkedList<Loan> fDebtList = new LinkedList<Loan>();
 
@@ -502,8 +470,8 @@ public class Bank extends JamelObject implements AccountHolder {
 			if (!open) 
 				throw new RuntimeException("This account is closed.");
 			new Loan(principal,Quality.GOOD, 
-                    (Double)(Bank.this.externalParams.get(ExternalLabel.MonthlyInterestRate)),
-                    (Integer)(Bank.this.externalParams.get(ExternalLabel.NormalTerm)));
+                     Bank.this.MonthlyInterestRate,
+                     Bank.this.NormalTerm);
 		}
 
 	}
@@ -532,11 +500,17 @@ public class Bank extends JamelObject implements AccountHolder {
 	/** A flag that indicates whether the bank the is bankrupt or not. */
 	private boolean bankrupt = false;
 
-    /** The repository of external parameters. */
-	final public HashMap<ExternalLabel,Object> externalParams;
-	
+        
+    
+    
 	/** The capital ratio targeted by the bank. */
-	public float TargetedCapitalRatio = 0f;
+	public double TargetedCapitalRatio = 0f;
+    
+    public int Accommodating;
+
+    public double MonthlyInterestRate;
+
+    public int NormalTerm;
 
 	/**
 	 * Creates a new bank.
@@ -544,7 +518,6 @@ public class Bank extends JamelObject implements AccountHolder {
 	public Bank() { 
 		this.bankAccount = new BasicAccount(this); 
 		this.accountsList = new LinkedList<CurrentAccount>() ;
-        this.externalParams = new HashMap<ExternalLabel, Object>();
 	}
 
 	/**
@@ -563,7 +536,7 @@ public class Bank extends JamelObject implements AccountHolder {
 	 * @return - the penalty rate.
 	 */
 	private double getPenaltyRate() {
-		return (Double)(this.externalParams.get(ExternalLabel.MonthlyInterestRate))*2;
+		return this.MonthlyInterestRate*2;
 	}
 
 	/**
@@ -625,7 +598,7 @@ public class Bank extends JamelObject implements AccountHolder {
 		for(CurrentAccount account : this.accountsList){
 			account.recover();
 			if (account.getDebtorStatus().isBad()) {
-				if ((Integer)(this.externalParams.get(ExternalLabel.Accommodating))==0) {
+				if (this.Accommodating==0) {
 					this.bankData.addBankruptcy();
 					// The bank tries to cancel the debt of the bad debtor.
 					final long nPLoans = account.getDebt();
@@ -693,8 +666,7 @@ public class Bank extends JamelObject implements AccountHolder {
 			throw new RuntimeException("The bank is bankrupt.");
 		final long ownCapital = bankAccount.getAmount();
 		final long totalAssets = this.getTotalAssets();
-		final long requiredCapital = (long)(totalAssets*
-                ((Double)this.externalParams.get(ExternalLabel.TargetedCapitalRatio)));
+		final long requiredCapital = (long)(totalAssets * this.TargetedCapitalRatio);
 		final long excedentCapital = Math.max(0, ownCapital-requiredCapital);
 		long dividend = excedentCapital/12;	
 		if (dividend<0) throw new RuntimeException("Dividend must be positive.") ;

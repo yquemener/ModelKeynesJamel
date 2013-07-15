@@ -74,3 +74,7 @@ Unified system for external parameters
             - Allow any modification of a public member without possibilities of control
 
 I choose 2. In theory, 3. would be better. Faster, and closer to the ideal model but I feel it closes too many options in the future.
+
+(2013-06-04) Ok, 2. means we are having a hashmap in every household. That is a bit too much of overhead. I'll rather explore 3. It probably means scraping most ExternalLabels classes, but it can be the opportunity to design a nice API. Maybe transform ExternalLabels into a structure with introspection static functions. How to do that while providing two different APIs, one for actors and one for scenarios without duplicating data?
+
+(2013-07-15) Let's do the simple thing. I'll keep ExternalLabels and InternalLabels as possible future documenting classes, but right now they are not useful.

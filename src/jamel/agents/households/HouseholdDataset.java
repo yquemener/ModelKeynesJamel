@@ -55,7 +55,7 @@ public class HouseholdDataset implements HouseholdDatasetInterface {
 	private long forcedSavings;
 	
 	/** The reservation wage. */
-	private float reservationWage;
+	private double reservationWage;
 	
 	/** The unemployment duration. */
 	private double unemploymentDuration;
@@ -164,7 +164,7 @@ public class HouseholdDataset implements HouseholdDatasetInterface {
 	 * @see jamel.agents.households.HouseholdDatasetInterface#getReservationWage()
 	 */
 	@Override
-	public float getReservationWage() {
+	public double getReservationWage() {
 		return reservationWage;
 	}
 
@@ -220,7 +220,7 @@ public class HouseholdDataset implements HouseholdDatasetInterface {
 	 * Sets the reservation wage.
 	 * @param value - the value to set.
 	 */
-	public void setReservationWage(float value) {
+	public void setReservationWage(double value) {
 		this.reservationWage=value;
 	}
 
@@ -228,7 +228,7 @@ public class HouseholdDataset implements HouseholdDatasetInterface {
 	 * Sets the duration of unemployment.
 	 * @param duration - the duration to set.
 	 */
-	public void setUnemploymentDuration(float duration) {
+	public void setUnemploymentDuration(double duration) {
 		this.unemploymentDuration=duration;
 	}
 

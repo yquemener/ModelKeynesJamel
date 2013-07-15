@@ -28,6 +28,8 @@ package jamel.agents.households;
 
 import jamel.util.markets.EmploymentContract;
 
+import java.util.Map;
+
 /**
  * Un ménage dont la mobilité sectorielle augmente avec la durée du chômage.
  */
@@ -41,7 +43,7 @@ public class HouseholdTypeC1 extends HouseholdTypeC {
 	 * @param aName  the name.
 	 * @param parameters  a string that contains some parameters.
 	 */
-	public HouseholdTypeC1(String aName, String parameters) {
+	public HouseholdTypeC1(String aName, Map<String, String> parameters) {
 		super(aName, parameters);
 		this.mobility=1f;
 	}

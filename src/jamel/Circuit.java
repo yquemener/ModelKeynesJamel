@@ -463,7 +463,7 @@ public class Circuit extends JamelObject {
 		this.nextPeriod();
 		System.out.println(timer.getCurrentPeriod().toString());
                 
-                this.scenario.runPeriod(this.timer.getCurrentPeriod());
+                this.scenario.runPeriod(timer.getCurrentPeriod());
                 this.open() ;
                 
 		this.bank.payDividend() ;

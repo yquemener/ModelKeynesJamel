@@ -35,6 +35,7 @@ import jamel.util.data.PeriodDataset;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -44,6 +45,7 @@ import java.util.Map.Entry;
  * Encapsulates a collection of {@link Household} agents.
  */
 public class HouseholdsSector extends JamelObject {
+  
 
 	/** The number of households created. */
 	private int countHouseholds = 0 ;
@@ -70,7 +72,7 @@ public class HouseholdsSector extends JamelObject {
 	public void newHouseholds(Map<String, String> parametersMap) {
 		Integer newHouseholds = null;
 		String householdClassName = null;
-		String moreParameter = null;
+		HashMap<String,String> moreParameter = new HashMap<String, String>();
 		for(Entry<String, String> entry : parametersMap.entrySet()) {
             final String key = entry.getKey();
 			final String value = entry.getValue();
@@ -83,8 +85,7 @@ public class HouseholdsSector extends JamelObject {
 				householdClassName = value;				
 			}
 			else {
-				if (moreParameter==null) moreParameter = key+"="+value;
-				else moreParameter = moreParameter+","+key+"="+value;
+              moreParameter.put(key, value);
 			}
 		}
 		if (newHouseholds==null) 
@@ -96,7 +97,7 @@ public class HouseholdsSector extends JamelObject {
 			try {
 				final String name = "Household "+countHouseholds;
 				Household newHousehold;
-				newHousehold = (Household) Class.forName(householdClassName,false,ClassLoader.getSystemClassLoader()).getConstructor(String.class,String.class).newInstance(name,moreParameter);
+				newHousehold = (Household) Class.forName(householdClassName,false,ClassLoader.getSystemClassLoader()).getConstructor(String.class,Map.class).newInstance(name,moreParameter);
 				householdsList.add(newHousehold) ;
 			} catch (Exception e) {
 				e.printStackTrace();

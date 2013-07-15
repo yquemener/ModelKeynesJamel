@@ -30,6 +30,7 @@ import jamel.Circuit;
 import jamel.agents.roles.Provider;
 
 import java.util.TreeSet;
+import java.util.Map;
 
 /**
  * An implementation of the household interface.
@@ -43,7 +44,7 @@ class HouseholdTypeB extends BasicHousehold {
 	 * @param aName - the name.
 	 * @param parameters - a string that contains some parameters.
 	 */
-	public HouseholdTypeB(String aName, String parameters) {
+	public HouseholdTypeB(String aName, Map<String, String> parameters) {
 		super(aName,parameters);
 	}
 

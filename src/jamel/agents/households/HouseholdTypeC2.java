@@ -32,7 +32,7 @@ import jamel.util.markets.JobOffer;
 
 import java.util.Comparator;
 import java.util.TreeSet;
-
+import java.util.Map;
 /**
  * Un ménage qui résiste à changer de secteur pour trouver un emploi. 
  */
@@ -54,11 +54,11 @@ public class HouseholdTypeC2 extends HouseholdTypeB {
 			if ((offer1 == null) & (offer2 == null)) return 0;
 			if (offer1 == null) return 1;
 			if (offer2 == null) return -1;
-			float p1 =1;
-			float p2 =1;
+			double p1 =1;
+			double p2 =1;
 			if (!e1.getType().equals(sector)) p1=mobility;
 			if (!e2.getType().equals(sector)) p2=mobility;
-			return (new Float(offer2.getWage()*p2).compareTo(offer1.getWage()*p1));
+			return (new Double(offer2.getWage()*p2).compareTo(offer1.getWage()*p1));
 		}
 		
 	}
@@ -67,7 +67,7 @@ public class HouseholdTypeC2 extends HouseholdTypeB {
 	 * O : the household is not mobile.
 	 * 1 : the household is perfectly mobile.
 	 */
-	private float mobility;
+	private double mobility;
 	
 	/** The comparator. */
 	private final Comp comparator = new Comp();
@@ -77,10 +77,10 @@ public class HouseholdTypeC2 extends HouseholdTypeB {
 	 * @param aName  the name.
 	 * @param parameters  a string that contains some parameters.
 	 */
-	public HouseholdTypeC2(String aName, String parameters) {
+	public HouseholdTypeC2(String aName, Map<String, String> parameters) {
 		super(aName, parameters);
 	}
-
+    
 	
 	/**
 	 * Initializes the defaults parameters.
@@ -88,7 +88,7 @@ public class HouseholdTypeC2 extends HouseholdTypeB {
 	@Override
 	protected void defaultSettings() {
 		super.defaultSettings();
-		this.parametersMap.put("mobility", "1");
+		this.parametersMap.put(ExternalLabel.mobility, 1.0);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class HouseholdTypeC2 extends HouseholdTypeB {
 	 */
 	protected void updateParameters() {
 		super.updateParameters();
-		this.mobility = Float.parseFloat(this.parametersMap.get("mobility"));
+		this.mobility = (Double)this.parametersMap.get(ExternalLabel.mobility);
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class HouseholdTypeC2 extends HouseholdTypeB {
 	 */
 	@Override
 	protected boolean isAcceptable(JobOffer jobOffer) {
-		float p=1;
+		double p=1;
 		if (!jobOffer.getEmployer().getType().equals(sector)) p=mobility;
 		return jobOffer.getWage()*p>=this.reservationWage;
 	}
